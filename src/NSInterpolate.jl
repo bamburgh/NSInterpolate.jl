@@ -4,9 +4,10 @@ A new method for interpolating linear features in aeromagnetic data. Geophysics,
 JM15-JM24). I have used version NSI_v8 from github:
     https://github.com/TomasNaprstek/Naprstek-Smith-Interpolation.
 """
-Module NSinterpolate
+module NSinterpolate
 
 export NSinterp
+
 # using Plots
 using Statistics
 # define fiducial dimension
@@ -73,8 +74,62 @@ function NSinterp(;xyz_file, east, north, z, datum, projection, outfile, cellSiz
 	NSinterp(paramd)
 end
 
+"""
+    NSinterp(param_file)
+
+Read parameters from `param_file` into a dictionary, `paramd`, and call `NSinterp(paramd)`
+
+A more detailed explanation can go here, perhaps a ref to the paper.
+
+# Arguments
+* `param_file`: The name of the JSON file containing the input parameters.
+
+# Notes
+The parameter file contains values for the following input parameters:
+
+    input_xyz_file: Geosoft XYZ file containing the observed data
+    input_xyz_east: the name of the channel in `input_xyz_file` containing the eastings
+    input_xyz_north: the name of the channel in `input_xyz_file` containing the northings
+	input_xyz_value: the name of the channel in `input_xyz_file` containing the values to grid
+    datum: the geographic datum (e.g. WGS84) for the input data
+    projection: the geographic projection for the input data (e.g. "NUTM17")
+    outputFile: the name of the netCDF4 file that the grid will be written to
+	cellSize: edge size of each square cell in metres
+	interpDist: metres away that will be interpolated
+	maxLoop: the number of times the interpolation loop will be processed
+	searchStepSize: how much of a cell we will "travel" each search step
+	cellSizeF: resampled final cell size
+	trendM: 100 - median % location (so 0 is no trending, 100 is full trending)
+	autoStop: a checkbox of whether or not to auto stop
+	angleSearch: the number of degrees it will move each time when searching away from the initial eigenvector
+	multiSmooth: smooth the multiplier grid before applying the normalization process (0 is no smoothing, 100 is max smoothing) (%)
+	spatialSmooth: a checkbox of whether or not to use spatial smoothing (in almost all cases, should be used)
+	outputwritebool: if 0, outputs in x y value. if 1, outputs in a format easy for importing into Oasis Montaj.
+	realGridLocations: if 0, outputs real data in the equi-distance grid cell locations. If 1, then output the real data cells as an average position of all real data within the cell.
+
+# Examples
+```julia
+julia>  NSinterp("tokens.json")
+
+NSinterp
+  Julia version by Mark Dransfield after Naprstek and Smith
+  Version gamma!
+  Tue, 28 Jan 2025 10:37:51
+  6 threads.
+  Julia Version - 1.8.2
+
+Accessing XYZ data in 2205173_Blackall_AGG_Preliminary.xyz.
+
+  Found 141 header records
+  Found 230 lines
+  Found 43 channels
+
+  Starting anisotropic gridding loop, loop counter:  1 2 3 4 5 6 7 8 9 10
+
+End
+```
+"""
 function NSinterp(param_file::String)
-	# read parameters from `param_file` into paramd and call NSinterp(paramd::Dict)
 	paramd = Dict()
 	try
 		f = open(param_file, "r")
