@@ -8,9 +8,7 @@ module NSinterpolate
 
 export NSinterp
 
-# using Plots
 using Statistics
-# define fiducial dimension
 using Printf
 using NCDatasets
 using Dates
@@ -241,7 +239,6 @@ function NSinterp(paramd::Dict; verbose=false)
 	    end
 	end
 	println("NSinterp ended.")
-
 end
 
 end
