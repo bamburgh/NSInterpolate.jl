@@ -1,0 +1,7 @@
+name = "NSInterpolate"
+uuid = "c480a481-35d3-4ab9-9d3f-fa60445fa85c"
+authors = ["Mark Dransfield"]
+version = "1.0.0-DEV"
+
+[compat]
+julia = "1.11"
