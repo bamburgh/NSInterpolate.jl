@@ -4,7 +4,7 @@ A new method for interpolating linear features in aeromagnetic data. Geophysics,
 JM15-JM24). I have used version NSI_v8 from github:
     https://github.com/TomasNaprstek/Naprstek-Smith-Interpolation.
 """
-module NSinterpolate
+module NSInterpolate
 
 export NSinterp
 
