@@ -106,6 +106,30 @@ The parameter file contains values for the following input parameters:
 	realGridLocations: if 0, outputs real data in the equi-distance grid cell locations. If 1, then output the real data cells as an average position of all real data within the cell.
 
 # Examples
+Here are the contents of an example parameter file, `tokens.json`:
+
+	{
+		"outputwritebool":true,
+		"maxLoop":10,
+		"input_xyz_north":"Northing",
+		"interpDist":1500.0,
+		"searchStepSize":0.25,
+		"cellSizeF":500.0,
+		"input_xyz_value":"gD_2P67",
+		"projection":"unknown",
+		"input_xyz_east":"Easting",
+		"datum":"unknown",
+		"trendM":50.0,
+		"autoStop":true,
+		"angleSearch":10.0,
+		"multiSmooth":100.0,
+		"spatialSmooth":true,
+		"outputFile":"Blackall_sm100.nc",
+		"realGridLocations":true,
+		"input_xyz_file":"mydatadirectory/mydatafile.xyz",
+		"cellSize":500.0
+	}
+
 ```julia
 julia>  NSinterp("tokens.json")
 
@@ -116,7 +140,7 @@ NSinterp
   6 threads.
   Julia Version - 1.8.2
 
-Accessing XYZ data in 2205173_Blackall_AGG_Preliminary.xyz.
+Accessing XYZ data in mydatafile.xyz.
 
   Found 141 header records
   Found 230 lines
