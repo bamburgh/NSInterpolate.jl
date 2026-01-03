@@ -47,7 +47,8 @@ end
 
 function NSinterp(;xyz_file, east, north, z, datum, projection, outfile, cellSize, interpDist,
 	maxLoop, searchStepSize, cellSizeF, trendM, autoStop, angleSearch, multiSmooth, spatialSmooth,
-	outputwritebool, realGridLocations)
+	outputwritebool, realGridLocations
+)
 	paramd = Dict([
 	        ("input_xyz_file", xyz_file),
 	        ("input_xyz_east", east),
@@ -262,7 +263,7 @@ function NSinterp(paramd::Dict; verbose=false)
 	    	println("\n\nFinished writing output")
 	    end
 	end
-	println("NSinterp ended.")
+	println("\n\nNSinterp ended.")
 end
 
 end
