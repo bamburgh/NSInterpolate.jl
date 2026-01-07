@@ -47,7 +47,7 @@ end
 
 function NSinterp(;xyz_file, east, north, z, datum, projection, outfile, cellSize, interpDist,
 	maxLoop, searchStepSize, cellSizeF, trendM, autoStop, angleSearch, multiSmooth, spatialSmooth,
-	outputwritebool, realGridLocations
+	outputwritebool, realGridLocations; verbose=false
 )
 	paramd = Dict([
 	        ("input_xyz_file", xyz_file),
@@ -70,11 +70,11 @@ function NSinterp(;xyz_file, east, north, z, datum, projection, outfile, cellSiz
 	        ("outputwritebool", outputwritebool),
 	        ("realGridLocations", realGridLocations)
 	        ])
-	NSinterp(paramd)
+	NSinterp(paramd, verbose=verbose)
 end
 
 """
-    NSinterp(param_file)
+    NSinterp(param_file, verbose=false)
 
 Read parameters from `param_file` into a dictionary, `paramd`, and call `NSinterp(paramd)`
 
@@ -82,6 +82,7 @@ A more detailed explanation can go here, perhaps a ref to the paper.
 
 # Arguments
 * `param_file`: The name of the JSON file containing the input parameters.
+* `verbose`: A flag to indicate verbose reporting of progress or not (default).
 
 # Notes
 The parameter file contains values for the following input parameters:
@@ -152,7 +153,7 @@ Accessing XYZ data in mydatafile.xyz.
 End
 ```
 """
-function NSinterp(param_file::String)
+function NSinterp(param_file::String, verbose=false)
 	paramd = Dict()
 	try
 		f = open(param_file, "r")
@@ -192,7 +193,7 @@ function NSinterp(param_file::String)
 		        ("realGridLocations", true)
 		        ])
 	end
-	NSinterp(paramd)
+	NSinterp(paramd, verbose=verbose)
 end
 
 function NSinterp(paramd::Dict; verbose=false)
@@ -210,7 +211,7 @@ function NSinterp(paramd::Dict; verbose=false)
 		e_chan=paramd["input_xyz_east"], 
 		z_chan=paramd["input_xyz_value"], 
 		outsample=1, 
-		verbose=false
+		verbose=verbose
 		)
 
 	data = init_xyz(
@@ -259,9 +260,7 @@ function NSinterp(paramd::Dict; verbose=false)
 
 	if paramd["outputwritebool"]
 	    saveGrid(finalData, paramd, missingdata)
-	    if verbose
-	    	println("\n\nFinished writing output")
-	    end
+    	println("\n\nFinished writing output to $(paramd["outputFile"])")
 	end
 	println("\n\nNSinterp ended.")
 end
