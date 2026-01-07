@@ -47,7 +47,7 @@ end
 
 function NSinterp(;xyz_file, east, north, z, datum, projection, outfile, cellSize, interpDist,
 	maxLoop, searchStepSize, cellSizeF, trendM, autoStop, angleSearch, multiSmooth, spatialSmooth,
-	outputwritebool, realGridLocations; verbose=false
+	outputwritebool, realGridLocations, verbose=false
 )
 	paramd = Dict([
 	        ("input_xyz_file", xyz_file),
