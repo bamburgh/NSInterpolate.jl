@@ -6,7 +6,7 @@
 
  NSInterpolate is a geophysical gridding program based on NSInterp (Naprstek & Smith, 2019).
 
- This is a Julia version based on the original C# version 1.8 and available on github at:
+ This is a Julia version based on the original C# version 1.8 which is available on github at:
 
      https://github.com/TomasNaprstek/Naprstek-Smith-Interpolation
 
@@ -27,6 +27,8 @@ Currently NSInterpolate.jl accepts a number of parameters to control the
 code. These may be passed directly to NSinterp, or may be stored in a JSON file
 in which case, the name of the JSON file should be passed to NSinterp.
 
+Input located data is readable from a Geosoft XYZ text file.
+
 The output grid is written to a netCDF4 file.
 
 ## Warnings
@@ -34,3 +36,14 @@ The output grid is written to a netCDF4 file.
 This is the first release of the Julia code and will likely contain bugs. In particular,
 the code makes some complex use of array indexing and the change from C#, with 0-indexing,
 to Julia, with 1-indexing, may have introduced some errors.
+
+## Installation
+
+NSInterpolate is not a registered package. It may be installed (this is tested under Pluto) by
+
+```julia
+using Pkg
+Pkg.add(url="https://github.com/bamburgh/NSInterpolate.jl")
+```
+
+NSInterpolate runs (Jan 2026) under Julia 1.12 on macOS 15.7.2 using the latest Pluto.
