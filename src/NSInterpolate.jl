@@ -260,6 +260,7 @@ function NSinterp(paramd::Dict; verbose=false)
     	println("\n\nFinished Averaging")
     end
 
+    println(summary(gridedData2))
     saveGrid(gridedData2, paramd, missingdata; out_file="init_avge.nc")
 
 	gridedData3 = initial_interpolation(gridedData2, paramd, Xmin, Ymin, missingdata)
