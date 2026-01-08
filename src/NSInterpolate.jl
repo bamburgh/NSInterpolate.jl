@@ -56,15 +56,15 @@ function read_json(file::String)::Dict
     end
 end
 
-function NSinterp(;xyz_file, east, north, z, datum, projection, outfile, cellSize, interpDist,
+function NSinterp(;input_file, east, north, z, datum, projection, outfile, cellSize, interpDist,
 	maxLoop, searchStepSize, cellSizeF, trendM, autoStop, angleSearch, multiSmooth, spatialSmooth,
 	outputwritebool, realGridLocations, verbose=false
 )
 	paramd = Dict([
-	        ("input_xyz_file", xyz_file),
-	        ("input_xyz_east", east),
-	        ("input_xyz_north", north),
-	        ("input_xyz_value", z),
+	        ("input_file", input_file),
+	        ("input_east", east),
+	        ("input_north", north),
+	        ("input_value", z),
 	        ("datum", datum),
 	        ("projection", projection),
 	        ("outputFile", outfile),
@@ -98,10 +98,10 @@ end
  # Notes
  The parameter file contains values for the following input parameters:
 
-    input_xyz_file: Geosoft XYZ file containing the observed data
-    input_xyz_east: the name of the channel in `input_xyz_file` containing the eastings
-    input_xyz_north: the name of the channel in `input_xyz_file` containing the northings
-	input_xyz_value: the name of the channel in `input_xyz_file` containing the values to grid
+    input_file: data file containing the observed data, either Geosoft XYZ or NetCDF4 nc format
+    input_east: the name of the channel in `input_file` containing the eastings
+    input_north: the name of the channel in `input_file` containing the northings
+	input_value: the name of the channel in `input_file` containing the values to grid
     datum: the geographic datum (e.g. WGS84) for the input data
     projection: the geographic projection for the input data (e.g. "NUTM17")
     outputFile: the name of the netCDF4 file that the grid will be written to
@@ -115,7 +115,7 @@ end
 	angleSearch: the number of degrees it will move each time when searching away from the initial eigenvector
 	multiSmooth: smooth the multiplier grid before applying the normalization process (0 is no smoothing, 100 is max smoothing) (%)
 	spatialSmooth: a checkbox of whether or not to use spatial smoothing (in almost all cases, should be used)
-	outputwritebool: if 0, outputs in x y value. if 1, outputs in a format easy for importing into Oasis Montaj.
+	outputwritebool: if false, no output file is written; if true, outputs result to NetCDF4 file.
 	realGridLocations: if 0, outputs real data in the equi-distance grid cell locations. If 1, then output the real data cells as an average position of all real data within the cell.
 
  # Examples
@@ -124,13 +124,13 @@ end
 	{
 		"outputwritebool":true,
 		"maxLoop":10,
-		"input_xyz_north":"Northing",
+		"input_north":"Northing",
 		"interpDist":1500.0,
 		"searchStepSize":0.25,
 		"cellSizeF":500.0,
-		"input_xyz_value":"gD_2P67",
+		"input_value":"gD_2P67",
 		"projection":"unknown",
-		"input_xyz_east":"Easting",
+		"input_east":"Easting",
 		"datum":"unknown",
 		"trendM":50.0,
 		"autoStop":true,
@@ -139,7 +139,7 @@ end
 		"spatialSmooth":true,
 		"outputFile":"Blackall_sm100.nc",
 		"realGridLocations":true,
-		"input_xyz_file":"mydatadirectory/mydatafile.xyz",
+		"input_file":"mydatadirectory/mydatafile.xyz",
 		"cellSize":500.0
 	}
 
@@ -175,18 +175,18 @@ function NSinterp(param_file::String, verbose=false)
 		println("    using DEFAULTS")
 		root = "/Users/markdransfield/Documents/GitHub/AirGravQC/examples/SourceData/"
 		root = "/Volumes/MHD Data2024/ActiveSurveys/202403_Xcal_5024_Blackall/Weekly Deliveries/19-04-24/Located/"
-		# xyz_file = root * "Canobie.xyz"
-		xyz_file = root * "2205173_Blackall_AGG_Preliminary.xyz"
+		# input_file = root * "Canobie.xyz"
+		input_file = root * "2205173_Blackall_AGG_Preliminary.xyz"
 		outfile = "Blackall_sm60.nc"
 		east = "Easting"
 		north = "Northing"
 		z = "gD_2P67"
 
 		paramd = Dict([
-		        ("input_xyz_file", xyz_file),
-		        ("input_xyz_east", east),
-		        ("input_xyz_north", north),
-		        ("input_xyz_value", z),
+		        ("input_file", input_file),
+		        ("input_east", east),
+		        ("input_north", north),
+		        ("input_value", z),
 		        ("datum", "unknown"),
 		        ("projection", "unknown"),
 		        ("outputFile", outfile),
@@ -220,22 +220,22 @@ function NSinterp(paramd::Dict; verbose=false)
 
 	## !!!!!!!!!!
 
-	if occursin(uppercase(split(paramd["input_xyz_file"], ".")[end]), "XYZ")
-		obs = obs_from_geoxyz(paramd["input_xyz_file"];
-			n_chan=paramd["input_xyz_north"], 
-			e_chan=paramd["input_xyz_east"], 
-			z_chan=paramd["input_xyz_value"], 
+	if occursin(uppercase(split(paramd["input_file"], ".")[end]), "XYZ")
+		obs = obs_from_geoxyz(paramd["input_file"];
+			n_chan=paramd["input_north"], 
+			e_chan=paramd["input_east"], 
+			z_chan=paramd["input_value"], 
 			outsample=1, 
 			verbose=verbose
 			)
-	elseif  occursin(uppercase(split(paramd["input_xyz_file"], ".")[end]), "NC")
-		obs = obs_from_geowhizz(paramd["input_xyz_file"],
-			n_chan=paramd["input_xyz_north"], 
-			e_chan=paramd["input_xyz_east"], 
-			z_chan=paramd["input_xyz_value"], 
+	elseif  occursin(uppercase(split(paramd["input_file"], ".")[end]), "NC")
+		obs = obs_from_geowhizz(paramd["input_file"],
+			n_chan=paramd["input_north"], 
+			e_chan=paramd["input_east"], 
+			z_chan=paramd["input_value"], 
 			verbose=verbose)
 	else
-		println("error - input data file name must end in either XYZ or NC not $(uppercase(split(paramd["input_xyz_file"], ".")[end]))")
+		println("error - input data file name must end in either XYZ or NC not $(uppercase(split(paramd["input_file"], ".")[end]))")
 		return
 	end
 
