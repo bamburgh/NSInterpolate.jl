@@ -1,8 +1,17 @@
 """
-The code is a conversion from `c#` of that published by T. Naprstek and R. S. Smith (2019, 
-A new method for interpolating linear features in aeromagnetic data. Geophysics, 84(3), 
-JM15-JM24). I have used version NSI_v8 from github:
-    https://github.com/TomasNaprstek/Naprstek-Smith-Interpolation.
+ NSInterpolate interpolates data irregularly sampled in 2 dimensions onto a regular grid. It is
+ designed originally for aeromagnetic data but is also very effective for airborne gravity and
+ airborne gravity gradient data. These data are all sampled along flight-lines that are close to
+ being straight lines and it is likely that the method will work well for any data sampled in this
+ way.
+
+ The code is a conversion from `c#`, published by T. Naprstek and R. S. Smith (2019, A new method
+ for interpolating linear features in aeromagnetic data. Geophysics, 84(3), JM15-JM24).
+
+ I have used version NSI_v8 from github:
+     https://github.com/TomasNaprstek/Naprstek-Smith-Interpolation.
+
+ Mark Dransfield 2024
 """
 module NSInterpolate
 
@@ -23,7 +32,9 @@ using DimensionalData: @dim, XDim, YDim, TimeDim
 missingdata = 1.0E10
 
 include("../src/xyzreader.jl")
+include("../src/obs_from_geowhizz.jl")
 include("../src/localstructs.jl")
+include("../src/cells.jl")
 include("../src/plotchecks.jl");
 include("../src/initial_assign.jl");
 include("../src/initial_average.jl");
@@ -76,16 +87,16 @@ end
 """
     NSinterp(param_file, verbose=false)
 
-Read parameters from `param_file` into a dictionary, `paramd`, and call `NSinterp(paramd)`
-
-A more detailed explanation can go here, perhaps a ref to the paper.
-
-# Arguments
-* `param_file`: The name of the JSON file containing the input parameters.
-* `verbose`: A flag to indicate verbose reporting of progress or not (default).
-
-# Notes
-The parameter file contains values for the following input parameters:
+ Read parameters from `param_file` into a dictionary, `paramd`, and call `NSinterp(paramd)`
+ 
+ A more detailed explanation can go here, perhaps a ref to the paper.
+ 
+ # Arguments
+ * `param_file`: The name of the JSON file containing the input parameters.
+ * `verbose`: A flag to indicate verbose reporting of progress or not (default).
+ 
+ # Notes
+ The parameter file contains values for the following input parameters:
 
     input_xyz_file: Geosoft XYZ file containing the observed data
     input_xyz_east: the name of the channel in `input_xyz_file` containing the eastings
@@ -107,8 +118,8 @@ The parameter file contains values for the following input parameters:
 	outputwritebool: if 0, outputs in x y value. if 1, outputs in a format easy for importing into Oasis Montaj.
 	realGridLocations: if 0, outputs real data in the equi-distance grid cell locations. If 1, then output the real data cells as an average position of all real data within the cell.
 
-# Examples
-Here are the contents of an example parameter file, `tokens.json`:
+ # Examples
+ Here are the contents of an example parameter file, `tokens.json`:
 
 	{
 		"outputwritebool":true,
@@ -132,17 +143,17 @@ Here are the contents of an example parameter file, `tokens.json`:
 		"cellSize":500.0
 	}
 
-```julia
-julia>  NSinterp("tokens.json")
-
-NSinterp
+ ```julia
+ julia>  NSinterp("tokens.json")
+ 
+ NSinterp
   Julia version by Mark Dransfield after Naprstek and Smith
   Version gamma!
   Tue, 28 Jan 2025 10:37:51
   6 threads.
   Julia Version - 1.8.2
 
-Accessing XYZ data in mydatafile.xyz.
+ Accessing XYZ data in mydatafile.xyz.
 
   Found 141 header records
   Found 230 lines
@@ -150,8 +161,8 @@ Accessing XYZ data in mydatafile.xyz.
 
   Starting anisotropic gridding loop, loop counter:  1 2 3 4 5 6 7 8 9 10
 
-End
-```
+ End
+ ```
 """
 function NSinterp(param_file::String, verbose=false)
 	paramd = Dict()
@@ -196,6 +207,7 @@ function NSinterp(param_file::String, verbose=false)
 	NSinterp(paramd, verbose=verbose)
 end
 
+
 function NSinterp(paramd::Dict; verbose=false)
 
 	println("NSinterp")
@@ -206,14 +218,23 @@ function NSinterp(paramd::Dict; verbose=false)
 	println("  ", "Julia Version - ", VERSION)
 	println()
 
-	obs = obs_from_geoxyz(paramd["input_xyz_file"]; 
-		n_chan=paramd["input_xyz_north"], 
-		e_chan=paramd["input_xyz_east"], 
-		z_chan=paramd["input_xyz_value"], 
-		outsample=1, 
-		verbose=verbose
-		)
+	## !!!!!!!!!!
 
+	if uppercase(split(paramd["input_xyz_file"], ".")[end]) in "XYZ"
+		obs = obs_from_geoxyz(paramd["input_xyz_file"]; 
+			n_chan=paramd["input_xyz_north"], 
+			e_chan=paramd["input_xyz_east"], 
+			z_chan=paramd["input_xyz_value"], 
+			outsample=1, 
+			verbose=verbose
+			)
+	elseif  uppercase(split(paramd["input_xyz_file"], ".")[end]) in "NC"
+		obs = obs_from_geowhizz(whizz_file; n_chan="y", e_chan="x", z_chan="z", verbose=false)
+	else
+		println("error - input data file name must end in either XYZ or NC.")
+		return
+	end
+	
 	data = init_xyz(
 		true, obs[:east].data, obs[:north].data, obs[:down].data,
 		[MapLine(1001., Point(33., 44.), Point(55., 66.))],
