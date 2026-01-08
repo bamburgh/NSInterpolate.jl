@@ -29,7 +29,7 @@ using DimensionalData: @dim, XDim, YDim, TimeDim
 @dim East XDim "easting"
 @dim North YDim "northing"
 
-missingdata = 1.0E10
+missingdata = missing#1.0E10
 
 include("../src/xyzreader.jl")
 include("../src/obs_from_geowhizz.jl")
