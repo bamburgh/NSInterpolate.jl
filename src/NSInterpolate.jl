@@ -56,11 +56,12 @@ function read_json(file::String)::Dict
     end
 end
 
-function NSinterp(;input_file, east, north, z, datum, projection, outfile, cellSize, interpDist,
+function NSinterp(;observed_data=nothing, input_file, east, north, z, datum, projection, outfile, cellSize, interpDist,
 	maxLoop, searchStepSize, cellSizeF, trendM, autoStop, angleSearch, multiSmooth, spatialSmooth,
 	outputwritebool, realGridLocations, verbose=false
 )
 	paramd = Dict([
+	        ("observed_data", nothing),
 	        ("input_file", input_file),
 	        ("input_east", east),
 	        ("input_north", north),
@@ -98,6 +99,7 @@ end
  # Notes
  The parameter file contains values for the following input parameters:
 
+    observed_data: DimDataset containing the observed data, if `nothing` (the default), get data from input_file
     input_file: data file containing the observed data, either Geosoft XYZ or NetCDF4 nc format
     input_east: the name of the channel in `input_file` containing the eastings
     input_north: the name of the channel in `input_file` containing the northings
@@ -183,6 +185,7 @@ function NSinterp(param_file::String, verbose=false)
 		z = "gD_2P67"
 
 		paramd = Dict([
+		        ("observed_data", nothing),
 		        ("input_file", input_file),
 		        ("input_east", east),
 		        ("input_north", north),
@@ -218,25 +221,28 @@ function NSinterp(paramd::Dict; verbose=false)
 	println("  ", "Julia Version - ", VERSION)
 	println()
 
-	## !!!!!!!!!!
-
-	if occursin(uppercase(split(paramd["input_file"], ".")[end]), "XYZ")
-		obs = obs_from_geoxyz(paramd["input_file"];
-			n_chan=paramd["input_north"], 
-			e_chan=paramd["input_east"], 
-			z_chan=paramd["input_value"], 
-			outsample=1, 
-			verbose=verbose
-			)
-	elseif  occursin(uppercase(split(paramd["input_file"], ".")[end]), "NC")
-		obs = obs_from_geowhizz(paramd["input_file"],
-			n_chan=paramd["input_north"], 
-			e_chan=paramd["input_east"], 
-			z_chan=paramd["input_value"], 
-			verbose=verbose)
+	# Get the observed data
+	if isnothing(paramd["observed_data"])
+		if occursin(uppercase(split(paramd["input_file"], ".")[end]), "XYZ")
+			obs = obs_from_geoxyz(paramd["input_file"];
+				n_chan=paramd["input_north"], 
+				e_chan=paramd["input_east"], 
+				z_chan=paramd["input_value"], 
+				outsample=1, 
+				verbose=verbose
+				)
+		elseif  occursin(uppercase(split(paramd["input_file"], ".")[end]), "NC")
+			obs = obs_from_geowhizz(paramd["input_file"],
+				n_chan=paramd["input_north"], 
+				e_chan=paramd["input_east"], 
+				z_chan=paramd["input_value"], 
+				verbose=verbose)
+		else
+			println("error - input data file name must end in either XYZ or NC not $(uppercase(split(paramd["input_file"], ".")[end]))")
+			return
+		end
 	else
-		println("error - input data file name must end in either XYZ or NC not $(uppercase(split(paramd["input_file"], ".")[end]))")
-		return
+		obs = paramd["observed_data"]
 	end
 
 	data = init_xyz(
@@ -299,7 +305,7 @@ function NSinterp(paramd::Dict; verbose=false)
 	println("\n\nNSinterp ended.")
 
 	# return as DimensionalData
-	return cell_to_dim(finalData)
+	return finalData #cell_to_dim(finalData)
 end
 
 end
