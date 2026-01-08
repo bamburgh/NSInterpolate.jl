@@ -258,19 +258,16 @@ function NSinterp(paramd::Dict; verbose=false)
 	gridedData2 = initial_average(gridedData1, posit)
     if verbose
     	println("\n\nFinished Averaging")
+	    println(summary(gridedData2))
     end
-
-    println(summary(gridedData2))
-    saveGrid(gridedData2, paramd, missingdata; out_file="init_avge.nc")
 
 	gridedData3 = initial_interpolation(gridedData2, paramd, Xmin, Ymin, missingdata)
     if verbose
     	println("\n\nFinished Initial Interpolating")
+    	println(summary(gridedData3))
+	    saveGrid(gridedData3, paramd, missingdata; out_file="init_interpolation.nc")
     end
-
-    println(summary(gridedData3))
-    saveGrid(gridedData3, paramd, missingdata; out_file="init_interpolation.nc")
-
+    
 	gridedData4, minVal, maxVal, dcoffset = offset_positive(gridedData3)
     if verbose
     	println("\n\nFinished Offsetting to Positive")
@@ -279,15 +276,15 @@ function NSinterp(paramd::Dict; verbose=false)
 	gridedData5 = alpha_mean(gridedData4, paramd)
     if verbose
     	println("\n\nFinished Alpha-mean Adjustment")
+    	println(summary(gridedData5))
+	    saveGrid(gridedData5, paramd, missingdata; out_file="alpha_mean.nc")
     end
-
-    println(summary(gridedData5))
-    saveGrid(gridedData5, paramd, missingdata; out_file="alpha_mean.nc")
-
 
 	realReplace = anisotropic_grid(gridedData5, paramd, dcoffset, minVal, maxVal)
     if verbose
     	println("\n\nFinished Anisotropic Gridding")
+    	println(summary(realReplace))
+	    saveGrid(realReplace, paramd, missingdata; out_file="anisotropic_grid.nc")
     end
 
 	finalData = subsample(X, Y, Xmax, Xmin, Ymax, Ymin, paramd, minVal, Value, realReplace, missingdata, dcoffset)

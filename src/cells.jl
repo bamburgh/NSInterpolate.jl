@@ -89,26 +89,21 @@ end
 """
 
 """
-function cell_to_dim(mycell; units="", projectname="", projection="", description="")
-    # if abs(celldata.X[2,1] - celldata.X[1,1]) > abs(celldata.X[1,2] - celldata.X[1,1])
-    #     eastings = celldata.X[1]
-    #     northings = celldata.Y[2]
-    # else
-    #     eastings = celldata.X[2]
-    #     northings = celldata.Y[1]
-    # end
-    # mydata = DimArray(
-    #     mycell.Value,
-    #     (eastings, northings);
-    #     name=:gravity,
-    #     metadata=Dict(
-    #         "x" => "easting",
-    #         "y" => "northing",
-    #         "Units" => units,
-    #         "Project" => projectname,
-    #         "Datum" => datum,
-    #         "Projection" => projection,
-    #         "Description" => description
-    # ))
-    return mycell
+function cell_to_dim(mycell; units="", projectname="", datum="", projection="", description="")
+    eastings = celldata.X[:,1]
+    northings = celldata.Y[1,:]
+    mydata = DimArray(
+        mycell.Value,
+        (eastings, northings);
+        name=:gravity,
+        metadata=Dict(
+            "x" => "easting",
+            "y" => "northing",
+            "Units" => units,
+            "Project" => projectname,
+            "Datum" => datum,
+            "Projection" => projection,
+            "Description" => description
+    ))
+    return mydata
 end
