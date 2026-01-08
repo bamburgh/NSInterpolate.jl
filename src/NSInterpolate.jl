@@ -253,8 +253,8 @@ function NSinterp(paramd::Dict; verbose=false)
     	println("\n\nFinished Initial Assignment to Grid")
     end
 
-    println(gridedData1)
-    
+    println(summary(gridedData1))
+
 	gridedData2 = initial_average(gridedData1, posit)
     if verbose
     	println("\n\nFinished Averaging")
