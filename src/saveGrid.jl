@@ -1,5 +1,8 @@
-function saveGrid(celldata::CellData, paramd, missingdata)
-    ds = NCDataset(paramd["outputFile"], "c")
+function saveGrid(celldata::CellData, paramd, missingdata; out_file="")
+    if out_file == ""
+        out_file = paramd["outputFile"]
+    end
+    ds = NCDataset(out_file, "c")
 
     ds.attrib["geographic_datum"] = "WGS84"
     ds.attrib["utm_zone"] = "UTM54"
