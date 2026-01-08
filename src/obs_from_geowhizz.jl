@@ -29,9 +29,9 @@ end
  Returns located data for a given survey line.
 """
 function get_located_data(whizz_file, z_chan; north_chan="", east_chan="", lines=[])
-    northing = []
-    easting = []
-    z_data = []
+    northing = Float64[]
+    easting = Float64[]
+    z_data = Float64[]
 
     NCDataset(whizz_file) do df
         lines_group = df.group["Lines"]
