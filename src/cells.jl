@@ -90,8 +90,8 @@ end
 
 """
 function cell_to_dim(mycell; units="", projectname="", datum="", projection="", description="")
-    eastings = celldata.X[:,1]
-    northings = celldata.Y[1,:]
+    eastings = mycell.X[:,1]
+    northings = mycell.Y[1,:]
     mydata = DimArray(
         mycell.Value,
         (eastings, northings);
