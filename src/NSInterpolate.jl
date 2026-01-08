@@ -305,7 +305,7 @@ function NSinterp(paramd::Dict; verbose=false)
 	println("\n\nNSinterp ended.")
 
 	# return as DimensionalData
-	return finalData #cell_to_dim(finalData)
+	return cell_to_dim(finalData)
 end
 
 end
