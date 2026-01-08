@@ -24,8 +24,9 @@ function initial_assign(data::XYZ, params::Dict)
     Ymin = minimum(Y)
 
     # ... then calc number of cells in starting grid
-    lengthX = Int(ceil(((Xmax - Xmin) / params["cellSize"])))
-    lengthY = Int(ceil(((Ymax - Ymin) / params["cellSize"])))
+    # (FUDGE!!! added 1 to each to avoid error but suspect that the cause will be c# to Julia translation)
+    lengthX = Int(ceil(((Xmax - Xmin) / params["cellSize"]))) + 1
+    lengthY = Int(ceil(((Ymax - Ymin) / params["cellSize"]))) + 1
     # # (if the division is perfect then we need to add one)
     if mod((Xmax - Xmin), params["cellSize"]) == 0.0
         lengthX += 1
