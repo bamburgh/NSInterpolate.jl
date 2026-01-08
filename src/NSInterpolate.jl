@@ -221,7 +221,7 @@ function NSinterp(paramd::Dict; verbose=false)
 	## !!!!!!!!!!
 
 	if occursin(uppercase(split(paramd["input_xyz_file"], ".")[end]), "XYZ")
-		obs = obs_from_geoxyz(paramd["input_xyz_file"]; 
+		obs = obs_from_geoxyz(paramd["input_xyz_file"];
 			n_chan=paramd["input_xyz_north"], 
 			e_chan=paramd["input_xyz_east"], 
 			z_chan=paramd["input_xyz_value"], 
@@ -229,7 +229,11 @@ function NSinterp(paramd::Dict; verbose=false)
 			verbose=verbose
 			)
 	elseif  occursin(uppercase(split(paramd["input_xyz_file"], ".")[end]), "NC")
-		obs = obs_from_geowhizz(whizz_file; n_chan="y", e_chan="x", z_chan="z", verbose=false)
+		obs = obs_from_geowhizz(paramd["input_xyz_file"],
+			n_chan=paramd["input_xyz_north"], 
+			e_chan=paramd["input_xyz_east"], 
+			z_chan=paramd["input_xyz_value"], 
+			verbose=verbose)
 	else
 		println("error - input data file name must end in either XYZ or NC not $(uppercase(split(paramd["input_xyz_file"], ".")[end]))")
 		return
