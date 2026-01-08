@@ -94,7 +94,7 @@ function cell_to_dim(mycell; units="", projectname="", datum="", projection="", 
     northings = mycell.Y[1,:]
     mydata = DimArray(
         mycell.Value,
-        (eastings, northings);
+        (X(eastings), Y(northings));
         name=:gravity,
         metadata=Dict(
             "x" => "easting",
