@@ -267,6 +267,9 @@ function NSinterp(paramd::Dict; verbose=false)
     	println("\n\nFinished Initial Interpolating")
     end
 
+    println(summary(gridedData3))
+    saveGrid(gridedData3, paramd, missingdata; out_file="init_interpolation.nc")
+
 	gridedData4, minVal, maxVal, dcoffset = offset_positive(gridedData3)
     if verbose
     	println("\n\nFinished Offsetting to Positive")
@@ -276,6 +279,10 @@ function NSinterp(paramd::Dict; verbose=false)
     if verbose
     	println("\n\nFinished Alpha-mean Adjustment")
     end
+
+    println(summary(gridedData5))
+    saveGrid(gridedData5, paramd, missingdata; out_file="alpha_mean.nc")
+
 
 	realReplace = anisotropic_grid(gridedData5, paramd, dcoffset, minVal, maxVal)
     if verbose
