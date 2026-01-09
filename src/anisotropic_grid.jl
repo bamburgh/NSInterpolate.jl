@@ -235,6 +235,11 @@ function anisotropic_grid(gridedData, params, dcoffset, minVal, maxVal)
                             if searchPos == false
                                 tempI = Int(multI * floor(tempXD)) # + 1
                                 tempJ = Int(multJ * floor(tempYD)) # + 1
+                                if tempI < 0 || tempJ < 0
+                                    println("tempI, multI, tempXD = $tempI, $multI, $tempXD")
+                                    println("tempJ, multJ, tempYD = $tempI, $multI, $tempXD")
+                                    println("origXD, origYD, currentStep = $origXD, $origYD, $currentStep")
+                                end
                                 # hit an edge in x-direction
                                 if (i + tempI >= lengthX || i + tempI < 0)
                                     searchPos = true
