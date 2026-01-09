@@ -308,15 +308,15 @@ function anisotropic_grid(gridedData, params, dcoffset, minVal, maxVal)
                                 if (i + tempI > lengthX || i + tempI < 1)
                                     searchNeg = true
                                     negGood = false
-                                    # hit an edge y-direction
+                                # hit an edge y-direction
                                 elseif (j + tempJ > lengthY || j + tempJ < 1)
                                     searchNeg = true
                                     negGood = false
-                                    # outside of interpolation distance
+                                # outside of interpolation distance
                                 elseif (gridedDataDerivIterate.Flag[i + tempI,j + tempJ] == -1) ###+1
                                     searchNeg = true
                                     negGood = false
-                                    # if true, then we have found a real data cell
+                                # if true, then we have found a real data cell
                                 elseif (gridedData.Flag[i + tempI,j + tempJ] == 1) ###+1
                                     # find out which side we came in from
                                     XPM = - multI * tempXD - tempI - 0.5
@@ -384,6 +384,20 @@ function anisotropic_grid(gridedData, params, dcoffset, minVal, maxVal)
                         # if j + jT2_2 < 1
                         #     println("j ", j, " jT2_2 ", jT2_2)
                         # end
+                        if i + iT1 < 1 || j + jT1 < 1 || i + iT1_2 < 1 || j + jT1_2 < 1
+                            println("TOO SMALL: i ", i, ", iT1 ", iT1, ", j ", j, ", jT1 ", jT1, ", iT1_2 ", iT1_2, ", jT1_2 ", jT1_2)
+                        end
+                        if i + iT1 > lengthX || j + jT1  > lengthY || i + iT1_2  > lengthX || j + jT1_2  > lengthY
+                            println("TOO BIG: i ", i, ", iT1 ", iT1, ", j ", j, ", jT1 ", jT1, ", iT1_2 ", iT1_2, ", jT1_2 ", jT1_2)
+                        end
+                        if i + iT2 < 1 || j + jT2 < 1 || i + iT2_2 < 1 || j + jT2_2 < 1
+                            println("TOO SMALL: i ", i, ", iT2 ", iT2, ", j ", j, ", jT2 ", jT2, ", iT2_2 ", iT2_2, ", jT2_2 ", jT2_2)
+                        end
+                        if i + iT2 > lengthX || j + jT2  > lengthY || i + iT2_2  > lengthX || j + jT2_2  > lengthY
+                            println("TOO BIG: i ", i, ", iT2 ", iT2, ", j ", j, ", jT2 ", jT2, ", iT2_2 ", iT2_2, ", jT2_2 ", jT2_2)
+                        end
+
+
                         if posGood && negGood
                             multiplierCPos = 0.0
                             multiplierCNeg = 0.0
@@ -409,12 +423,6 @@ function anisotropic_grid(gridedData, params, dcoffset, minVal, maxVal)
                             iMult = iMultT1 + iMultT2
                             multFind = true
                         elseif posGood
-                            if i + iT1 < 1 || j + jT1 < 1 || i + iT1_2 < 1 || j + jT1_2 < 1
-                                println("TOO SMALL: i ", i, ", iT1 ", iT1, ", j ", j, ", jT1 ", jT1, ", iT1_2 ", iT1_2, ", jT1_2 ", jT1_2)
-                            end
-                            if i + iT1 > lengthX || j + jT1  > lengthY || i + iT1_2  > lengthX || j + jT1_2  > lengthY
-                                println("TOO BIG: i ", i, ", iT1 ", iT1, ", j ", j, ", jT1 ", jT1, ", iT1_2 ", iT1_2, ", jT1_2 ", jT1_2)
-                            end
                             if foundNearbyCellPos
                                 iMult = (multiplierCells[i + iT1,j + jT1] + multiplierCells[i + iT1_2,j + jT1_2]) / 2 ###+1
                             else
@@ -422,12 +430,6 @@ function anisotropic_grid(gridedData, params, dcoffset, minVal, maxVal)
                             end
                             multFind = true
                         elseif negGood
-                            if i + iT2 < 1 || j + jT2 < 1 || i + iT2_2 < 1 || j + jT2_2 < 1
-                                println("TOO SMALL: i ", i, ", iT2 ", iT2, ", j ", j, ", jT2 ", jT2, ", iT2_2 ", iT2_2, ", jT2_2 ", jT2_2)
-                            end
-                            if i + iT2 > lengthX || j + jT2  > lengthY || i + iT2_2  > lengthX || j + jT2_2  > lengthY
-                                println("TOO BIG: i ", i, ", iT2 ", iT2, ", j ", j, ", jT2 ", jT2, ", iT2_2 ", iT2_2, ", jT2_2 ", jT2_2)
-                            end
                             if foundNearbyCellNeg
                                 iMult = (multiplierCells[i + iT2,j + jT2] + multiplierCells[i + iT2_2,j + jT2_2]) / 2 ###+1
                             else
