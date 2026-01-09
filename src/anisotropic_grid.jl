@@ -385,16 +385,16 @@ function anisotropic_grid(gridedData, params, dcoffset, minVal, maxVal)
                         #     println("j ", j, " jT2_2 ", jT2_2)
                         # end
                         if i + iT1 < 0 || j + jT1 < 0 || i + iT1_2 < 0 || j + jT1_2 < 0
-                            println("TOO SMALL 1: i ", i, ", iT1 ", iT1, ", j ", j, ", jT1 ", jT1, ", iT1_2 ", iT1_2, ", jT1_2 ", jT1_2)
+                            println("SMALL 1: i ", i, ", iT1 ", iT1, ", j ", j, ", jT1 ", jT1, ", iT1_2 ", iT1_2, ", jT1_2 ", jT1_2, " ", posGood, " ", negGood)
                         end
                         if i + iT1 > lengthX-1 || j + jT1  > lengthY-1 || i + iT1_2  > lengthX-1 || j + jT1_2  > lengthY-1
-                            println("TOO BIG 1: i ", i, ", iT1 ", iT1, ", j ", j, ", jT1 ", jT1, ", iT1_2 ", iT1_2, ", jT1_2 ", jT1_2)
+                            println("BIG 1: i ", i, ", iT1 ", iT1, ", j ", j, ", jT1 ", jT1, ", iT1_2 ", iT1_2, ", jT1_2 ", jT1_2, " ", posGood, " ", negGood)
                         end
                         if i + iT2 < 0 || j + jT2 < 0 || i + iT2_2 < 0 || j + jT2_2 < 0
-                            println("TOO SMALL 2: i ", i, ", iT2 ", iT2, ", j ", j, ", jT2 ", jT2, ", iT2_2 ", iT2_2, ", jT2_2 ", jT2_2)
+                            println("SMALL 2: i ", i, ", iT2 ", iT2, ", j ", j, ", jT2 ", jT2, ", iT2_2 ", iT2_2, ", jT2_2 ", jT2_2, " ", posGood, " ", negGood)
                         end
                         if i + iT2 > lengthX-1 || j + jT2  > lengthY-1 || i + iT2_2  > lengthX-1 || j + jT2_2  > lengthY-1
-                            println("TOO BIG 2: i ", i, ", iT2 ", iT2, ", j ", j, ", jT2 ", jT2, ", iT2_2 ", iT2_2, ", jT2_2 ", jT2_2)
+                            println("BIG 2: i ", i, ", iT2 ", iT2, ", j ", j, ", jT2 ", jT2, ", iT2_2 ", iT2_2, ", jT2_2 ", jT2_2, " ", posGood, " ", negGood)
                         end
 
 
