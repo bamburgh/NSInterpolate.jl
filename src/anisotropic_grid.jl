@@ -77,7 +77,7 @@ function anisotropic_grid(gridedData, params, dcoffset, minVal, maxVal)
                     realReplace.Value[i,j] = missingdata
                     realReplace.Flag[i,j] = -1
                     iMultCells[i,j] = missingdata
-                # otherwise it is interpolatedΩdata,
+                # otherwise it is interpolated data,
                 # and therefore we must find the real data along lines of isotropy
                 else
                     failed = false
@@ -233,31 +233,31 @@ function anisotropic_grid(gridedData, params, dcoffset, minVal, maxVal)
                             # now we need to know which direction we are looking, and add the current distance to i and j (current location)
                             # we have not found a real data cell in the positive direction yet
                             if searchPos == false
-                                tempI = Int(multI * floor(tempXD)) + 1 # + 1
-                                tempJ = Int(multJ * floor(tempYD)) + 1 # + 1
+                                tempI = Int(multI * floor(tempXD)) # + 1
+                                tempJ = Int(multJ * floor(tempYD)) # + 1
                                 # hit an edge in x-direction
-                                if (i + tempI >= lengthX || i + tempI < 1)
+                                if (i + tempI >= lengthX || i + tempI < 0)
                                     searchPos = true
                                     posGood = false
                                 # hit an edge y-direction
-                                elseif (j + tempJ >= lengthY || j + tempJ < 1)
+                                elseif (j + tempJ >= lengthY || j + tempJ < 0)
                                     searchPos = true
                                     posGood = false
                                 # outside of interpolation distance
-                                elseif (gridedDataDerivIterate.Flag[i + tempI,j + tempJ] == -1)
+                                elseif (gridedDataDerivIterate.Flag[i + tempI,j + tempJ] == -1) ###+1
                                     searchPos = true
                                     posGood = false
                                 # if true, then we have found a real data cell
-                                elseif (gridedData.Flag[i + tempI,j + tempJ] == 1)
+                                elseif (gridedData.Flag[i + tempI,j + tempJ] == 1) ###+1
                                     # find out which side we came in from
                                     XPM = multI * tempXD - tempI + 0.5
                                     YPM = multJ * tempYD - tempJ + 0.5
 
                                     for k in 1:8
                                         # this cell is real
-                                        if (gridedData.Flag[gridedData.close1[i + tempI,j + tempJ,k,1],gridedData.close1[i + tempI,j + tempJ,k,2]] == 1)
+                                        if (gridedData.Flag[gridedData.close1[i + tempI,j + tempJ,k,1],gridedData.close1[i + tempI,j + tempJ,k,2]] == 1) ###+1
                                             # and not a repeat value
-                                            if (gridedData.close1[i + tempI,j + tempJ,k,1] == (i + tempI) && gridedData.close1[i + tempI,j + tempJ,k,2] == (j + tempJ))
+                                            if (gridedData.close1[i + tempI,j + tempJ,k,1] == (i + tempI) && gridedData.close1[i + tempI,j + tempJ,k,2] == (j + tempJ)) ###+1
                                             else
                                                 wayX = 0
                                                 wayY = 0
@@ -281,7 +281,7 @@ function anisotropic_grid(gridedData, params, dcoffset, minVal, maxVal)
                                                             foundNearbyCellPos2 = true
                                                         else
                                                             iT1_2 = tempI + wayX
-                                                            jT1_2 = tempJ + wayY + 1 # + 1
+                                                            jT1_2 = tempJ + wayY # + 1
                                                             foundNearbyCellPos = true
                                                         end
                                                     end
@@ -289,39 +289,39 @@ function anisotropic_grid(gridedData, params, dcoffset, minVal, maxVal)
                                             end
                                         end
                                     end
-                                    iT1 = tempI + 1 # + 1
-                                    jT1 = tempJ + 1 # + 1
+                                    iT1 = tempI # + 1
+                                    jT1 = tempJ # + 1
                                     searchPos = true
                                     posGood = true
                                 end
                             end
                             # we have not found a real data cell in the negative direction yet
                             if searchNeg == false
-                                tempI = Int(-multI * floor(tempXD)) + 1 # + 1
-                                tempJ = Int(-multJ * floor(tempYD)) + 1 # + 1
+                                tempI = Int(-multI * floor(tempXD)) # + 1
+                                tempJ = Int(-multJ * floor(tempYD)) # + 1
                                 # hit an edge in x-direction
-                                if (i + tempI >= lengthX || i + tempI < 1)
+                                if (i + tempI >= lengthX || i + tempI < 0)
                                     searchNeg = true
                                     negGood = false
                                     # hit an edge y-direction
-                                elseif (j + tempJ >= lengthY || j + tempJ < 1)
+                                elseif (j + tempJ >= lengthY || j + tempJ < 0)
                                     searchNeg = true
                                     negGood = false
                                     # outside of interpolation distance
-                                elseif (gridedDataDerivIterate.Flag[i + tempI,j + tempJ] == -1)
+                                elseif (gridedDataDerivIterate.Flag[i + tempI,j + tempJ] == -1) ###+1
                                     searchNeg = true
                                     negGood = false
                                     # if true, then we have found a real data cell
-                                elseif (gridedData.Flag[i + tempI,j + tempJ] == 1)
+                                elseif (gridedData.Flag[i + tempI,j + tempJ] == 1) ###+1
                                     # find out which side we came in from
-                                    XPM = 0.5 - multI * tempXD - tempI
-                                    YPM = 0.5 - multJ * tempYD - tempJ
+                                    XPM = - multI * tempXD - tempI - 0.5
+                                    YPM = - multJ * tempYD - tempJ - 0.5
 
                                     for k in 1:8
                                         # this cell is real
-                                        if (gridedData.Flag[gridedData.close1[i + tempI,j + tempJ,k,1],gridedData.close1[i + tempI,j + tempJ,k,2]] == 1)
+                                        if (gridedData.Flag[gridedData.close1[i + tempI,j + tempJ,k,1],gridedData.close1[i + tempI,j + tempJ,k,2]] == 1) ###+1
                                             # and not a repeat value
-                                            if (gridedData.close1[i + tempI,j + tempJ,k,1] == (i + tempI) && gridedData.close1[i + tempI,j + tempJ,k,2] == (j + tempJ))
+                                            if (gridedData.close1[i + tempI,j + tempJ,k,1] == (i + tempI) && gridedData.close1[i + tempI,j + tempJ,k,2] == (j + tempJ)) ###+1
                                             else
                                                 wayX = 0
                                                 wayY = 0
@@ -383,18 +383,18 @@ function anisotropic_grid(gridedData, params, dcoffset, minVal, maxVal)
                             multiplierCPos = 0.0
                             multiplierCNeg = 0.0
                             if foundNearbyCellPos
-                                multiplierCPos = (multiplierCells[i + iT1,j + jT1] + multiplierCells[i + iT1_2,j + jT1_2]) / 2
+                                multiplierCPos = (multiplierCells[i + iT1,j + jT1] + multiplierCells[i + iT1_2,j + jT1_2]) / 2 ###+1
                             elseif foundNearbyCellPos2
-                                multiplierCPos = (multiplierCells[i + iT1,j + jT1] + multiplierCells[i + iT1_2,j + jT1_2] + multiplierCells[j + jT1_3,i + iT1_3]) / 3
+                                multiplierCPos = (multiplierCells[i + iT1,j + jT1] + multiplierCells[i + iT1_2,j + jT1_2] + multiplierCells[j + jT1_3,i + iT1_3]) / 3 ###+1
                             else
-                                multiplierCPos = multiplierCells[i + iT1,j + jT1]
+                                multiplierCPos = multiplierCells[i + iT1,j + jT1] ###+1
                             end
                             if foundNearbyCellNeg
-                                multiplierCNeg = (multiplierCells[i + iT2,j + jT2] + multiplierCells[i + iT2_2,j + jT2_2]) / 2
+                                multiplierCNeg = (multiplierCells[i + iT2,j + jT2] + multiplierCells[i + iT2_2,j + jT2_2]) / 2 ###+1
                             elseif foundNearbyCellNeg2
-                                multiplierCNeg = (multiplierCells[i + iT2,j + jT2] + multiplierCells[i + iT2_2,j + jT1_2] + multiplierCells[i + iT2_3,j + jT2_3]) / 3
+                                multiplierCNeg = (multiplierCells[i + iT2,j + jT2] + multiplierCells[i + iT2_2,j + jT1_2] + multiplierCells[i + iT2_3,j + jT2_3]) / 3 ###+1
                             else
-                                multiplierCNeg = multiplierCells[i + iT2,j + jT2]
+                                multiplierCNeg = multiplierCells[i + iT2,j + jT2] ###+1
                             end
                             distance1 = sqrt(iT1 * iT1 + jT1 * jT1)
                             distance2 = sqrt(iT2 * iT2 + jT2 * jT2)
@@ -411,9 +411,9 @@ function anisotropic_grid(gridedData, params, dcoffset, minVal, maxVal)
                                 println("TOO BIG: i ", i, ", iT1 ", iT1, ", j ", j, ", jT1 ", jT1, ", iT1_2 ", iT1_2, ", jT1_2 ", jT1_2)
                             end
                             if foundNearbyCellPos
-                                iMult = (multiplierCells[i + iT1,j + jT1] + multiplierCells[i + iT1_2,j + jT1_2]) / 2
+                                iMult = (multiplierCells[i + iT1,j + jT1] + multiplierCells[i + iT1_2,j + jT1_2]) / 2 ###+1
                             else
-                                iMult = multiplierCells[i + iT1,j + jT1]
+                                iMult = multiplierCells[i + iT1,j + jT1] ###+1
                             end
                             multFind = true
                         elseif negGood
@@ -424,9 +424,9 @@ function anisotropic_grid(gridedData, params, dcoffset, minVal, maxVal)
                                 println("TOO BIG: i ", i, ", iT2 ", iT2, ", j ", j, ", jT2 ", jT2, ", iT2_2 ", iT2_2, ", jT2_2 ", jT2_2)
                             end
                             if foundNearbyCellNeg
-                                iMult = (multiplierCells[i + iT2,j + jT2] + multiplierCells[i + iT2_2,j + jT2_2]) / 2
+                                iMult = (multiplierCells[i + iT2,j + jT2] + multiplierCells[i + iT2_2,j + jT2_2]) / 2 ###+1
                             else
-                                iMult = multiplierCells[i + iT2,j + jT2]
+                                iMult = multiplierCells[i + iT2,j + jT2] ###+1
                             end
                             multFind = true
                             # both directions failed. We must now start over with a new direction.
