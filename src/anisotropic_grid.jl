@@ -417,6 +417,12 @@ function anisotropic_grid(gridedData, params, dcoffset, minVal, maxVal)
                             end
                             multFind = true
                         elseif negGood
+                            if i + iT2 < 1 || j + jT2 < 1 || i + iT2_2 < 1 || j + jT2_2 < 1
+                                println("TOO SMALL: i ", i, ", iT1 ", iT1, ", j ", j, ", jT1 ", jT1, ", iT1_2 ", iT1_2, ", jT1_2 ", jT1_2)
+                            end
+                            if i + iT2 > lengthX || j + jT2  > lengthY || i + iT2_2  > lengthX || j + jT2_2  > lengthY
+                                println("TOO BIG: i ", i, ", iT1 ", iT1, ", j ", j, ", jT1 ", jT1, ", iT1_2 ", iT1_2, ", jT1_2 ", jT1_2)
+                            end
                             if foundNearbyCellNeg
                                 iMult = (multiplierCells[i + iT2,j + jT2] + multiplierCells[i + iT2_2,j + jT2_2]) / 2
                             else
