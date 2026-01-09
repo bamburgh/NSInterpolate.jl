@@ -353,8 +353,8 @@ function anisotropic_grid(gridedData, params, dcoffset, minVal, maxVal)
                                             end
                                         end
                                     end
-                                    iT2 = tempI
-                                    jT2 = tempJ
+                                    iT2 = tempI - 1 # hack MHD
+                                    jT2 = tempJ - 1 # hack MHD
                                     searchNeg = true
                                     negGood = true
                                 end
