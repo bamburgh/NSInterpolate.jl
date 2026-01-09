@@ -21,7 +21,7 @@ function anisotropic_grid(gridedData, params, dcoffset, minVal, maxVal)
         # this is the first loop, therefore need the data from gridedData
         if (currentLoop == 0)
             copy_cell(gridedData, gridedDataDerivIterate)
-            print("  Starting anisotropic gridding loop, loop counter: ")
+            println("  Starting anisotropic gridding loop, loop counter: ")
         # this is NOT the first loop, therefore need the data from realReplace
         else
             copy_cell(realReplace, gridedDataDerivIterate)
@@ -385,16 +385,16 @@ function anisotropic_grid(gridedData, params, dcoffset, minVal, maxVal)
                         #     println("j ", j, " jT2_2 ", jT2_2)
                         # end
                         if i + iT1 < 1 || j + jT1 < 1 || i + iT1_2 < 1 || j + jT1_2 < 1
-                            println("TOO SMALL: i ", i, ", iT1 ", iT1, ", j ", j, ", jT1 ", jT1, ", iT1_2 ", iT1_2, ", jT1_2 ", jT1_2)
+                            println("TOO SMALL 1: i ", i, ", iT1 ", iT1, ", j ", j, ", jT1 ", jT1, ", iT1_2 ", iT1_2, ", jT1_2 ", jT1_2)
                         end
                         if i + iT1 > lengthX || j + jT1  > lengthY || i + iT1_2  > lengthX || j + jT1_2  > lengthY
-                            println("TOO BIG: i ", i, ", iT1 ", iT1, ", j ", j, ", jT1 ", jT1, ", iT1_2 ", iT1_2, ", jT1_2 ", jT1_2)
+                            println("TOO BIG 1: i ", i, ", iT1 ", iT1, ", j ", j, ", jT1 ", jT1, ", iT1_2 ", iT1_2, ", jT1_2 ", jT1_2)
                         end
                         if i + iT2 < 1 || j + jT2 < 1 || i + iT2_2 < 1 || j + jT2_2 < 1
-                            println("TOO SMALL: i ", i, ", iT2 ", iT2, ", j ", j, ", jT2 ", jT2, ", iT2_2 ", iT2_2, ", jT2_2 ", jT2_2)
+                            println("TOO SMALL 2: i ", i, ", iT2 ", iT2, ", j ", j, ", jT2 ", jT2, ", iT2_2 ", iT2_2, ", jT2_2 ", jT2_2)
                         end
                         if i + iT2 > lengthX || j + jT2  > lengthY || i + iT2_2  > lengthX || j + jT2_2  > lengthY
-                            println("TOO BIG: i ", i, ", iT2 ", iT2, ", j ", j, ", jT2 ", jT2, ", iT2_2 ", iT2_2, ", jT2_2 ", jT2_2)
+                            println("TOO BIG 2: i ", i, ", iT2 ", iT2, ", j ", j, ", jT2 ", jT2, ", iT2_2 ", iT2_2, ", jT2_2 ", jT2_2)
                         end
 
 
@@ -402,18 +402,18 @@ function anisotropic_grid(gridedData, params, dcoffset, minVal, maxVal)
                             multiplierCPos = 0.0
                             multiplierCNeg = 0.0
                             if foundNearbyCellPos
-                                multiplierCPos = (multiplierCells[i + iT1,j + jT1] + multiplierCells[i + iT1_2,j + jT1_2]) / 2 ###+1
+                                multiplierCPos = (multiplierCells[i + iT1, j + jT1] + multiplierCells[i + iT1_2, j + jT1_2]) / 2.0 ###+1
                             elseif foundNearbyCellPos2
-                                multiplierCPos = (multiplierCells[i + iT1,j + jT1] + multiplierCells[i + iT1_2,j + jT1_2] + multiplierCells[j + jT1_3,i + iT1_3]) / 3 ###+1
+                                multiplierCPos = (multiplierCells[i + iT1, j + jT1] + multiplierCells[i + iT1_2, j + jT1_2] + multiplierCells[i + iT1_3, j + jT1_3]) / 3.0 ###+1
                             else
-                                multiplierCPos = multiplierCells[i + iT1,j + jT1] ###+1
+                                multiplierCPos = multiplierCells[i + iT1, j + jT1] ###+1
                             end
                             if foundNearbyCellNeg
-                                multiplierCNeg = (multiplierCells[i + iT2,j + jT2] + multiplierCells[i + iT2_2,j + jT2_2]) / 2 ###+1
+                                multiplierCNeg = (multiplierCells[i + iT2, j + jT2] + multiplierCells[i + iT2_2, j + jT2_2]) / 2 ###+1
                             elseif foundNearbyCellNeg2
-                                multiplierCNeg = (multiplierCells[i + iT2,j + jT2] + multiplierCells[i + iT2_2,j + jT1_2] + multiplierCells[i + iT2_3,j + jT2_3]) / 3 ###+1
+                                multiplierCNeg = (multiplierCells[i + iT2, j + jT2] + multiplierCells[i + iT2_2, j + jT1_2] + multiplierCells[i + iT2_3, j + jT2_3]) / 3.0 ###+1
                             else
-                                multiplierCNeg = multiplierCells[i + iT2,j + jT2] ###+1
+                                multiplierCNeg = multiplierCells[i + iT2, j + jT2] ###+1
                             end
                             distance1 = sqrt(iT1 * iT1 + jT1 * jT1)
                             distance2 = sqrt(iT2 * iT2 + jT2 * jT2)
