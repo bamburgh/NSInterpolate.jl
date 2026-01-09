@@ -1,4 +1,5 @@
 function anisotropic_grid(gridedData, params, dcoffset, minVal, maxVal)
+    return gridedData # temporary since this routine has bugs!!! ToDo
     
     # initialise useful variables
     lengthX = gridedData.lenX
@@ -377,13 +378,9 @@ function anisotropic_grid(gridedData, params, dcoffset, minVal, maxVal)
                                 searching = false
                             end
                         end
-                        # then both directions succeeeded
-                        # if j + jT2 < 1
-                        #     println("j ", j, " jT2 ", jT2)
-                        # end
-                        # if j + jT2_2 < 1
-                        #     println("j ", j, " jT2_2 ", jT2_2)
-                        # end
+
+
+
                         if i + iT1 < 0 || j + jT1 < 0 || i + iT1_2 < 0 || j + jT1_2 < 0
                             println("SMALL 1: i ", i, ", iT1 ", iT1, ", j ", j, ", jT1 ", jT1, ", iT1_2 ", iT1_2, ", jT1_2 ", jT1_2, " ", posGood, " ", negGood)
                         end
@@ -398,22 +395,37 @@ function anisotropic_grid(gridedData, params, dcoffset, minVal, maxVal)
                         end
 
 
+                        # then both directions succeeeded
                         if posGood && negGood
                             multiplierCPos = 0.0
                             multiplierCNeg = 0.0
                             if foundNearbyCellPos
-                                multiplierCPos = (multiplierCells[i + iT1+1, j + jT1+1] + multiplierCells[i + iT1_2+1, j + jT1_2+1]) / 2.0 ###+1
+                                multiplierCPos = (
+                                    multiplierCells[i + iT1, j + jT1] + 
+                                    multiplierCells[i + iT1_2, j + jT1_2]
+                                    ) / 2.0 ###+1
                             elseif foundNearbyCellPos2
-                                multiplierCPos = (multiplierCells[i + iT1+1, j + jT1+1] + multiplierCells[i + iT1_2+1, j + jT1_2+1] + multiplierCells[i + iT1_3+1, j + jT1_3+1]) / 3.0 ###+1
+                                multiplierCPos = (
+                                    multiplierCells[i + iT1, j + jT1] + 
+                                    multiplierCells[i + iT1_2, j + jT1_2] + 
+                                    multiplierCells[i + iT1_3, j + jT1_3]
+                                    ) / 3.0 ###+1
                             else
-                                multiplierCPos = multiplierCells[i + iT1+1, j + jT1+1] ###+1
+                                multiplierCPos = multiplierCells[i + iT1, j + jT1] ###+1
                             end
                             if foundNearbyCellNeg
-                                multiplierCNeg = (multiplierCells[i + iT2+1, j + jT2+1] + multiplierCells[i + iT2_2+1, j + jT2_2+1]) / 2 ###+1
+                                multiplierCNeg = (
+                                    multiplierCells[i + iT2, j + jT2] + 
+                                    multiplierCells[i + iT2_2, j + jT2_2]
+                                    ) / 2.0 ###+1
                             elseif foundNearbyCellNeg2
-                                multiplierCNeg = (multiplierCells[i + iT2+1, j + jT2+1] + multiplierCells[i + iT2_2+1, j + jT1_2+1] + multiplierCells[i + iT2_3+1, j + jT2_3+1]) / 3.0 ###+1
+                                multiplierCNeg = (
+                                    multiplierCells[i + iT2, j + jT2] + 
+                                    multiplierCells[i + iT2_2, j + jT1_2] + 
+                                    multiplierCells[i + iT2_3, j + jT2_3]
+                                    ) / 3.0 ###+1
                             else
-                                multiplierCNeg = multiplierCells[i + iT2+1, j + jT2+1] ###+1
+                                multiplierCNeg = multiplierCells[i + iT2, j + jT2] ###+1
                             end
                             distance1 = sqrt(iT1 * iT1 + jT1 * jT1)
                             distance2 = sqrt(iT2 * iT2 + jT2 * jT2)
@@ -424,14 +436,19 @@ function anisotropic_grid(gridedData, params, dcoffset, minVal, maxVal)
                             multFind = true
                         elseif posGood
                             if foundNearbyCellPos
-                                iMult = (multiplierCells[i + iT1,j + jT1] + multiplierCells[i + iT1_2,j + jT1_2]) / 2 ###+1
+                                iMult = (
+                                    multiplierCells[i + iT1,j + jT1] + 
+                                    multiplierCells[i + iT1_2,j + jT1_2]) / 2.0 ###+1
                             else
                                 iMult = multiplierCells[i + iT1,j + jT1] ###+1
                             end
                             multFind = true
                         elseif negGood
                             if foundNearbyCellNeg
-                                iMult = (multiplierCells[i + iT2,j + jT2] + multiplierCells[i + iT2_2,j + jT2_2]) / 2 ###+1
+                                iMult = (
+                                    multiplierCells[i + iT2,j + jT2] + 
+                                    multiplierCells[i + iT2_2,j + jT2_2]
+                                    ) / 2.0 ###+1
                             else
                                 iMult = multiplierCells[i + iT2,j + jT2] ###+1
                             end
