@@ -345,7 +345,7 @@ function anisotropic_grid(gridedData, params, dcoffset, minVal, maxVal)
                                                             foundNearbyCellNeg2 = true
                                                         else
                                                             iT2_2 = tempI + wayX
-                                                            jT2_2 = tempJ + wayY + 1 # + 1
+                                                            jT2_2 = tempJ + wayY # + 1
                                                             foundNearbyCellNeg = true
                                                         end
                                                     end
@@ -353,8 +353,8 @@ function anisotropic_grid(gridedData, params, dcoffset, minVal, maxVal)
                                             end
                                         end
                                     end
-                                    iT2 = tempI - 1 # hack MHD
-                                    jT2 = tempJ - 1 # hack MHD
+                                    iT2 = tempI
+                                    jT2 = tempJ
                                     searchNeg = true
                                     negGood = true
                                 end
