@@ -402,18 +402,18 @@ function anisotropic_grid(gridedData, params, dcoffset, minVal, maxVal)
                             multiplierCPos = 0.0
                             multiplierCNeg = 0.0
                             if foundNearbyCellPos
-                                multiplierCPos = (multiplierCells[i + iT1, j + jT1] + multiplierCells[i + iT1_2, j + jT1_2]) / 2.0 ###+1
+                                multiplierCPos = (multiplierCells[i + iT1+1, j + jT1+1] + multiplierCells[i + iT1_2+1, j + jT1_2+1]) / 2.0 ###+1
                             elseif foundNearbyCellPos2
-                                multiplierCPos = (multiplierCells[i + iT1, j + jT1] + multiplierCells[i + iT1_2, j + jT1_2] + multiplierCells[i + iT1_3, j + jT1_3]) / 3.0 ###+1
+                                multiplierCPos = (multiplierCells[i + iT1+1, j + jT1+1] + multiplierCells[i + iT1_2+1, j + jT1_2+1] + multiplierCells[i + iT1_3+1, j + jT1_3+1]) / 3.0 ###+1
                             else
-                                multiplierCPos = multiplierCells[i + iT1, j + jT1] ###+1
+                                multiplierCPos = multiplierCells[i + iT1+1, j + jT1+1] ###+1
                             end
                             if foundNearbyCellNeg
-                                multiplierCNeg = (multiplierCells[i + iT2, j + jT2] + multiplierCells[i + iT2_2, j + jT2_2]) / 2 ###+1
+                                multiplierCNeg = (multiplierCells[i + iT2+1, j + jT2+1] + multiplierCells[i + iT2_2+1, j + jT2_2+1]) / 2 ###+1
                             elseif foundNearbyCellNeg2
-                                multiplierCNeg = (multiplierCells[i + iT2, j + jT2] + multiplierCells[i + iT2_2, j + jT1_2] + multiplierCells[i + iT2_3, j + jT2_3]) / 3.0 ###+1
+                                multiplierCNeg = (multiplierCells[i + iT2+1, j + jT2+1] + multiplierCells[i + iT2_2+1, j + jT1_2+1] + multiplierCells[i + iT2_3+1, j + jT2_3+1]) / 3.0 ###+1
                             else
-                                multiplierCNeg = multiplierCells[i + iT2, j + jT2] ###+1
+                                multiplierCNeg = multiplierCells[i + iT2+1, j + jT2+1] ###+1
                             end
                             distance1 = sqrt(iT1 * iT1 + jT1 * jT1)
                             distance2 = sqrt(iT2 * iT2 + jT2 * jT2)
