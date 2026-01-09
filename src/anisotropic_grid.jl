@@ -120,7 +120,7 @@ function anisotropic_grid(gridedData, params, dcoffset, minVal, maxVal)
                                         newAng = origAng + (eigenSide * tenD)
                                     end
                                 end
-                                # if the initial y direction is stronger, then we will first search more towards the y-axis. Also means that if it is -90 or 90 degrees, we just assume one direction.
+                            # if the initial y direction is stronger, then we will first search more towards the y-axis. Also means that if it is -90 or 90 degrees, we just assume one direction.
                             elseif abs(v11[i,j]) < abs(v12[i,j])
                                 # then we are even, and therefore have already tried the y direction first
                                 if mod(eigenDevi, 2.0) == 0
@@ -140,7 +140,7 @@ function anisotropic_grid(gridedData, params, dcoffset, minVal, maxVal)
                                         newAng = origAng - (eigenSide * tenD)
                                     end
                                 end
-                                # then they are equal, and we started at 45 degrees. Arbitrarily I will say we first search more towards the x-axis. May be worthwhile to change at a later time.
+                            # then they are equal, and we started at 45 degrees. Arbitrarily I will say we first search more towards the x-axis. May be worthwhile to change at a later time.
                             else
                                 # then we are even, and therefore have already tried the x direction first
                                 if mod(eigenDevi, 2.0) == 0
@@ -235,17 +235,17 @@ function anisotropic_grid(gridedData, params, dcoffset, minVal, maxVal)
                             if searchPos == false
                                 tempI = Int(multI * floor(tempXD)) # + 1
                                 tempJ = Int(multJ * floor(tempYD)) # + 1
-                                if tempI < 0 || tempJ < 0
-                                    println("tempI, multI, tempXD = $tempI, $multI, $tempXD")
-                                    println("tempJ, multJ, tempYD = $tempI, $multI, $tempXD")
-                                    println("origXD, origYD, currentStep = $origXD, $origYD, $currentStep")
-                                end
+                                # if tempI < 0 || tempJ < 0
+                                #     println("\ntempI, multI, tempXD = $tempI, $multI, $tempXD")
+                                #     println("tempJ, multJ, tempYD = $tempI, $multI, $tempXD")
+                                #     println("origXD, origYD, currentStep = $origXD, $origYD, $currentStep")
+                                # end
                                 # hit an edge in x-direction
-                                if (i + tempI >= lengthX || i + tempI < 0)
+                                if (i + tempI > lengthX || i + tempI < 1)
                                     searchPos = true
                                     posGood = false
                                 # hit an edge y-direction
-                                elseif (j + tempJ >= lengthY || j + tempJ < 0)
+                                elseif (j + tempJ > lengthY || j + tempJ < 1)
                                     searchPos = true
                                     posGood = false
                                 # outside of interpolation distance
@@ -305,11 +305,11 @@ function anisotropic_grid(gridedData, params, dcoffset, minVal, maxVal)
                                 tempI = Int(-multI * floor(tempXD)) # + 1
                                 tempJ = Int(-multJ * floor(tempYD)) # + 1
                                 # hit an edge in x-direction
-                                if (i + tempI >= lengthX || i + tempI < 0)
+                                if (i + tempI > lengthX || i + tempI < 1)
                                     searchNeg = true
                                     negGood = false
                                     # hit an edge y-direction
-                                elseif (j + tempJ >= lengthY || j + tempJ < 0)
+                                elseif (j + tempJ > lengthY || j + tempJ < 1)
                                     searchNeg = true
                                     negGood = false
                                     # outside of interpolation distance
