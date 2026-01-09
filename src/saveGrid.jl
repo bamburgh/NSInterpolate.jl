@@ -31,7 +31,7 @@ function saveGrid(celldata::CellData, paramd, missingdata; out_file="")
     for i in 1:celldata.lenX
         for j in 1:celldata.lenY
             if celldata.Flag[i,j] < 0
-                myvals[i,j] = missing#data
+                myvals[i,j] = missingdata
             else
                 myvals[i,j] = celldata.Value[i,j]
             end
