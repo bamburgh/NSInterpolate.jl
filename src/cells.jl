@@ -92,8 +92,9 @@ end
 function cell_to_dim(mycell; units="", projectname="", datum="", projection="", description="")
     eastings = mycell.X[:,1]
     northings = mycell.Y[1,:]
+    newdata = [x == missingdata ? missing : x for x in mycell.data]
     mydata = DimArray(
-        mycell.Value,
+        newdata, #mycell.Value,
         (X(eastings), Y(northings));
         name=:gravity,
         metadata=Dict(
