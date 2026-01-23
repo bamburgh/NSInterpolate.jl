@@ -400,7 +400,7 @@ function NSinterp(paramd::Dict; verbose=false)
 end
 
 
-function NSinterp(obs, paramd::Dict; verbose=false)
+function NSinterp(obs::DimensionalData.DimStack, paramd::Dict; verbose=false)
 
     data = init_xyz(
         true, obs[:east].data, obs[:north].data, obs[:down].data,
