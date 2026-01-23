@@ -353,13 +353,13 @@ function NSinterp(;input_file::String, east::String, north::String, z::String,
 end
 
 
-function NSinterp(observed_data, param_file::String, verbose=false)
+function NSinterp(observed_data, param_file::String; verbose=false)
     paramd = params_from(param_file)
     return NSinterp(observed_data, paramd, verbose=verbose)
 end
 
 
-function NSinterp(param_file::String, verbose=false)
+function NSinterp(param_file::String; verbose=false)
     paramd = params_from(param_file)
     return NSinterp(paramd, verbose=verbose)
 end
@@ -400,7 +400,7 @@ function NSinterp(paramd::Dict; verbose=false)
 end
 
 
-function NSinterp(obs, paramd::Dict, verbose=false)
+function NSinterp(obs, paramd::Dict; verbose=false)
 
     data = init_xyz(
         true, obs[:east].data, obs[:north].data, obs[:down].data,
