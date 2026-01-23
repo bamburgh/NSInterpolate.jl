@@ -322,10 +322,11 @@ function params_from(input_file::String, east::String, north::String, z::String,
 end
 
 
-function NSinterp(;observed_data, datum::String, projection::String, outfile::String,
-    cellSize::Float64, interpDist::Float64, maxLoop::Int64, searchStepSize::Float64,
-    cellSizeF::Float64, trendM::Float64, autoStop::Bool, angleSearch::Float64, multiSmooth::Float64,
-    spatialSmooth::Bool, outputwritebool::Bool, realGridLocations::Bool, verbose=false
+function NSinterp(observed_data::DimensionalData.DimStack; datum::String,
+    projection::String, outfile::String, cellSize::Float64, interpDist::Float64,
+    maxLoop::Int64, searchStepSize::Float64, cellSizeF::Float64, trendM::Float64,
+    autoStop::Bool, angleSearch::Float64, multiSmooth::Float64, spatialSmooth::Bool,
+    outputwritebool::Bool, realGridLocations::Bool, verbose=false
 )
     input_file = ""
     east = ""
@@ -353,7 +354,7 @@ function NSinterp(;input_file::String, east::String, north::String, z::String,
 end
 
 
-function NSinterp(observed_data, param_file::String; verbose=false)
+function NSinterp(observed_data::DimensionalData.DimStack, param_file::String; verbose=false)
     paramd = params_from(param_file)
     return NSinterp(observed_data, paramd, verbose=verbose)
 end
