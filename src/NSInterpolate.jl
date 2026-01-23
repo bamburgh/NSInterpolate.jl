@@ -199,8 +199,29 @@ using DimensionalData: @dim, XDim, YDim, TimeDim
         "cellSize":500.0
     }
 
- ```julia
- julia>  NSinterp("tokens.json")
+```julia-repl
+ julia> paramd = Dict([
+            ("input_file", input_file),
+            ("input_east", east),
+            ("input_north", north),
+            ("input_value", z),
+            ("datum", datum),
+            ("projection", projection),
+            ("outputFile", outfile),
+            ("cellSize", cellSize),
+            ("interpDist", interpDist),
+            ("maxLoop", maxLoop),
+            ("searchStepSize", searchStepSize),
+            ("cellSizeF", cellSizeF),
+            ("trendM", trendM),
+            ("autoStop", autoStop),
+            ("angleSearch", angleSearch),
+            ("multiSmooth", multiSmooth),
+            ("spatialSmooth", spatialSmooth),
+            ("outputwritebool", outputwritebool),
+            ("realGridLocations", realGridLocations)
+            ])
+ julia>  NSinterp(paramd)
  
  NSinterp
   Julia version by Mark Dransfield after Naprstek and Smith
@@ -218,7 +239,7 @@ using DimensionalData: @dim, XDim, YDim, TimeDim
   Starting anisotropic gridding loop, loop counter:  1 2 3 4 5 6 7 8 9 10
 
  End
- ```
+```
 """
 NSInterp
 
