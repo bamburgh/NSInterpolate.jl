@@ -1,0 +1,31 @@
+Below is a short description of each of the user variables that must be defined. Further descriptions can be found in the associated paper: Tomas Naprstek and Richard S. Smith, (2019), "A new method for interpolating linear features in aeromagnetic data," GEOPHYSICS 84: JM15-JM24. https://library.seg.org/doi/10.1190/geo2018-0156.1
+
+Additionally, see the associated figure "MTG_ID_TA.png" to better understand the Interpolation distance and Trend angle variables, as they are often the most difficult to understand.
+
+NOTE: This description has been modified from that published on GitHub by Naprstek so as to align with the names, and ordering, used in the Julia NSInterpolate. *Mark Dransfield Jan 2026*
+
+—
+
+*input_file* or input file name: the name of the data file to be input. **The file MUST be in a tab-delimited format, in the order "x position - y position - value - line#".**
+
+*cellSize* or interpolation cell size: This is the size of the grid cells during the interpolation. We generally recommend that the interpolation size be 0.5 x Output cell size, as this can help smooth out the data. However, this can also lead to weak lineaments not trending all the way between two flight lines, as they now have "further" to trend. We recommend experimentation, but in general this value should be half the size, or at most, the same as the output cell size.
+
+*cellSizeF* or output cell size: This is the size of the grid cells at the end of the interpolation. This should follow standard aeromagnetic interpolation rules, and be kept at one-quarter to one-fifth the flight line spacing.
+
+*interpDist* or interpolation distance: Essentially, this determines how "far" the method will search for real data when completing the normalisation step. In general we recommend setting this to 75-100% of the flight line spacing. However, if a trend is at a highly acute angle to the flight lines, then it would require a much larger interpolation distance.
+
+*maxLoop* or maximum number of iterations: The maximum number of iterations that you wish the interpolation method to go through. This will depend highly on the dataset, but in general somewhere between 50 and 100 is enough, particularly when the automatic stopping criteria is used.
+
+*trendM* or trend factor: Ranges between 0 and 100, affecting how strongly a lineament will be trended (100 is maximum, 0 is minimal trending). In general we recommend using 100.
+
+Multiplier smoothing factor: Ranges between 0 and 100, affecting the uniqueness of the normalization values (0 is no smoothing, 100 is maximum smoothing). In general we recommend setting it to 0, and to only increase if high-frequency "noise" is appearing in the interpolation. The subsampling  process of the interpolation cell size and output cell size will in general be more effective at reducing any high-frequency "noise", however in certain cases a high smoothing value (>75) will also help.
+
+Trend angle: When searching for flight line data in the normalization process, it is possible that the interpolation distance (described above) will be reached before a flight line data cell is found. If this occurs, then the search angle (as determined by the trend direction step) will be varied by this "trend angle" amount. In general we recommend 5-10 degrees. A lower value will be more accurate, however may dramatically increase the computation time. A higher value will lower the trending accuracy, but be computational quicker.
+
+*autoStop* or automatic stopping: Set to "1" if you wish to let the method determine when there is little change occurring between iterations. If set to "0" it will run for the Maximum number of iterations, as determined above.
+
+*spatialSmooth* or spatial smoothing: This option should almost always be left on, as it controls the first step of the iterative interpolation process. If turned off, the local derivatives are removed from the first step, effectively reducing it to a more simplistic smoothing operator. However, it is left as a variable to the user for two specific cases. First, it should always be turned off if using Lat/Long coordinates rather than Northings/Eastings, or in any other case where the cell size is set to be less than 1. Second, it can be turned off as an additional control to reduce the linear structure within the data. In most datasets there will be very little difference between having the option on or off, however, if left off, some of the areas with minimal linear structure should result in even less linear structure.
+
+Output format: When using the standalone .exe, the data can be output either in a x y value format ("0"), the same format that is used in the Oasis Montaj .dll version ("1"), or as an ASCII grid file ("2"). 
+
+*realGridLocations* or real data cell position: If "0", real data cells will be part of the equi-distance grid cell locations. If "1", then the real data cells positions will be an average position of all real data within each cell (Oasis Montaj default). NOTE: this only affects output format "0".

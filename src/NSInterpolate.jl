@@ -29,6 +29,202 @@ using DimensionalData: @dim, XDim, YDim, TimeDim
 @dim East XDim "easting"
 @dim North YDim "northing"
 
+"""
+    NSinterp(param_file::String, verbose=false)
+
+    NSinterp(paramd::Dict; verbose=false)
+
+    NSinterp(observed_data::DimStack, param_file::String, verbose=false)
+
+    NSinterp(observed_data::DimStack, paramd::Dict, verbose=false)
+
+    NSinterp(;input_file, east, north, z, datum, projection, outfile, cellSize,
+        interpDist, maxLoop, searchStepSize, cellSizeF, trendM, autoStop, angleSearch,
+        multiSmooth, spatialSmooth, outputwritebool, realGridLocations, verbose=false
+    )
+
+    NSinterp(;observed_data::DimStack, datum, projection, outfile, cellSize, interpDist,
+        maxLoop, searchStepSize, cellSizeF, trendM, autoStop, angleSearch, multiSmooth,
+        spatialSmooth, outputwritebool, realGridLocations, verbose=false
+    )
+  
+ Use control parameters to perform gridding of observed survey data and manage resultant
+ grid.
+   
+  
+
+  
+ # Arguments
+ * `paramd`: A dictionary containing the input parameters (see Notes).
+ * `param_file`: The name of the JSON file containing the input parameters.
+ * `verbose`: A flag to indicate verbose reporting of progress or not (default).
+
+ # Input Survey Data
+ * usually read from the data file named in the input parameters but can be
+    input directly as a DimStack of arrays `x`, `y`, and `z` dimensioned by
+    time (fiducial).
+
+ # Returns
+ * `final_grid`: 
+
+ # Notes
+ The parameter file contains values for the following input parameters:
+
+ - input_file: String
+        path of data file containing the observed data, either Geosoft XYZ or
+        NetCDF4 nc format
+
+ - input_east: String
+        the name of the channel in `input_file` containing the `x` values,
+        usually eastings.
+        
+ - input_north: String
+        the name of the channel in `input_file` containing the `y` values,
+        usually northings.
+        
+ - input_value: String
+        the name of the channel in `input_file` containing the values to grid.
+        
+ - datum: String ("unknown")
+        the geographic datum (e.g. WGS84) for the input data; not used, simply
+        written to output grid.
+        
+ - projection: String ("unknown")
+        the geographic projection for the input data (e.g. "NUTM17"); not used,
+        simply written to output grid.
+        
+ - outputFile: String
+        the name of the netCDF4 file to which the grid will be written.
+        
+ - cellSize: Float
+        edge size of each square cell in metres. This is the size of the grid cells
+        during the interpolation. N&S generally recommend that the interpolation size be
+        0.5 x `cellSizeF`, as this can help smooth out the data. However, this can also
+        lead to weak lineaments not trending all the way between two flight lines, as
+        they now have "further" to trend. N&S recommend experimentation, but in general
+        this value should be half the size, or at most, the same as the output cell size.
+        
+ - interpDist: Float
+        metres away that will be interpolated. Essentially, this determines how
+        "far" the method will search for real data when completing the normalisation step.
+        In general N&S recommend setting this to 75-100% of the flight line spacing. However,
+        if a trend is at a highly acute angle to the flight lines, then it would require a
+        much larger interpolation distance.
+        
+ - maxLoop: Integer (20)
+        the number of times the interpolation loop will be processed or maximum number
+        of iterations. The maximum number of iterations that you wish the interpolation
+        method to go through. This will depend highly on the dataset, but in general
+        somewhere between 50 and 100 is enough, particularly when the automatic stopping
+        criteria is used.
+        
+ - searchStepSize: Float
+        how much of a cell we will "travel" each search step
+        
+ - cellSizeF: Float
+        resampled final cell size. This is the size of the grid cells at the end
+        of the interpolation. This should follow standard interpolation rules, for example
+        for aeromagnetic data set to one-quarter to one-fifth the flight line spacing.
+        
+ - trendM: Float (0.0)
+        trend factor. Ranges between 0 and 100, affecting how strongly a lineament
+        will be trended (100 is maximum, 0 is minimal trending). In general N&S recommend
+        using 100. Irrelevant because a bug is preventing trending from working.
+        
+ - autoStop: Boolean (true)
+        whether or not to auto stop. Set to `true` if you wish to let
+        the method determine when there is little change occurring between iterations. If
+        set to `false` it will run for `maxLoop` iterations, as determined above.
+        
+ - angleSearch: Float (10.0)
+        the number of degrees it will move each time when searching away from
+        the initial eigenvector. When searching for flight line data in the normalization
+        process, it is possible that the interpolation distance (described above) will be
+        reached before a flight line data cell is found. If this occurs, then the search
+        angle (as determined by the trend direction step) will be varied by this "trend
+        angle" amount. In general N&S recommend 5-10 degrees. A lower value will be more
+        accurate, however may dramatically increase the computation time. A higher value
+        will lower the trending accuracy, but be computational quicker.
+        
+ - multiSmooth: Float (0.0)
+        percent amount of smoothing of the multiplier grid before applying the
+        normalization process. Ranges between 0(no smoothing) and 100 (maximum smoothing),
+        affecting the uniqueness of the normalization values . In general N&S recommend
+        setting it to 0, and to only increase if high-frequency "noise" is appearing in
+        the interpolation. The subsampling process of the interpolation cell size and
+        output cell size will in general be more effective at reducing any high-frequency
+        "noise", however in certain cases a high smoothing value (>75) will also help.
+        
+ - spatialSmooth: Boolean (true)
+        whether or not to use spatial smoothing (should usually be `true`). This option
+        should almost always be set `true`, as it controls the first step of the iterative
+        interpolation process. If turned off, the local derivatives are removed from the
+        first step, effectively reducing it to a more simplistic smoothing operator. However,
+        it is left as a variable to the user for two specific cases. First, it should always
+        be turned off if using latitude/longitude coordinates rather than Northings/Eastings,
+        or in any other case where the cell size is set to be less than 1. Second, it can
+        be turned off as an additional control to reduce the linear structure within the
+        data. In most datasets there will be very little difference between having the
+        option on or off, however, if left off, some of the areas with minimal linear
+        structure should result in even less linear structure.
+        
+ - outputwritebool: Boolean (true)
+        if `false`, no output file is written; if `true`, writes the output
+        grid to `outputFile`.
+        
+ - realGridLocations: Boolean (true)
+        if `false`, outputs real data in the equi-distance grid cell
+        locations. If `true`, then output the real data cells as an average position of
+        all real data within the cell. **probably has no effect!!!**
+
+ # Examples
+ Here are the contents of an example parameter file, `tokens.json`:
+
+    {
+        "outputwritebool":true,
+        "maxLoop":10,
+        "input_north":"Northing",
+        "interpDist":1500.0,
+        "searchStepSize":0.25,
+        "cellSizeF":500.0,
+        "input_value":"gD_2P67",
+        "projection":"unknown",
+        "input_east":"Easting",
+        "datum":"unknown",
+        "trendM":50.0,
+        "autoStop":true,
+        "angleSearch":10.0,
+        "multiSmooth":100.0,
+        "spatialSmooth":true,
+        "outputFile":"Blackall_sm100.nc",
+        "realGridLocations":true,
+        "input_file":"mydatadirectory/mydatafile.xyz",
+        "cellSize":500.0
+    }
+
+```julia
+ julia>  NSinterp("tokens.json")
+ 
+ NSinterp
+  Julia version by Mark Dransfield after Naprstek and Smith
+  Version gamma!
+  Tue, 28 Jan 2025 10:37:51
+  6 threads.
+  Julia Version - 1.8.2
+
+ Accessing XYZ data in mydatafile.xyz.
+
+  Found 141 header records
+  Found 230 lines
+  Found 43 channels
+
+  Starting anisotropic gridding loop, loop counter:  1 2 3 4 5 6 7 8 9 10
+
+ End
+```
+"""
+NSInterp
+
 missingdata = 1.0E10
 
 include("../src/xyzreader.jl")
@@ -50,262 +246,218 @@ include("../src/subsample.jl");
 include("../src/saveGrid.jl");
 include("../src/anisotropic_grid.jl");
 
-function read_json(file::String)::Dict
-    open(file, "r") do f
-        return JSON.parse(f)
+
+function params_from(param_file::String)
+    paramd = Dict()
+    try
+        f = open(param_file, "r")
+        paramd = JSON.parse(f)
+        close(f)
+    catch e
+        println("Failed to read JSON: $e")
+        println("    using DEFAULTS")
+        root = "/Users/markdransfield/Documents/GitHub/AirGravQC/examples/SourceData/"
+        root = "/Volumes/MHD Data2024/ActiveSurveys/202403_Xcal_5024_Blackall/Weekly Deliveries/19-04-24/Located/"
+        # input_file = root * "Canobie.xyz"
+        input_file = root * "2205173_Blackall_AGG_Preliminary.xyz"
+        outfile = "Blackall_sm60.nc"
+        east = "Easting"
+        north = "Northing"
+        z = "gD_2P67"
+
+        paramd = Dict([
+                ("input_file", input_file),
+                ("input_east", east),
+                ("input_north", north),
+                ("input_value", z),
+                ("datum", "unknown"),
+                ("projection", "unknown"),
+                ("outputFile", outfile),
+                ("cellSize", 500),
+                ("interpDist", 1200),
+                ("maxLoop", 20),
+                ("searchStepSize", 0.25),
+                ("cellSizeF", 500.0),
+                ("trendM", 0.0),
+                ("autoStop", true),
+                ("angleSearch", 10.0),
+                ("multiSmooth", 0.0),
+                ("spatialSmooth", true),
+                ("outputwritebool", true),
+                ("realGridLocations", true)
+                ])
     end
+    return paramd
 end
 
-function NSinterp(;observed_data=nothing, input_file, east, north, z, datum, projection, outfile, cellSize, interpDist,
-	maxLoop, searchStepSize, cellSizeF, trendM, autoStop, angleSearch, multiSmooth, spatialSmooth,
-	outputwritebool, realGridLocations, verbose=false
+
+function params_from(input_file, east, north, z, datum, projection, outfile, cellSize,
+    interpDist, maxLoop, searchStepSize, cellSizeF, trendM, autoStop, angleSearch,
+    multiSmooth, spatialSmooth, outputwritebool, realGridLocations, verbose=false
 )
-	paramd = Dict([
-	        ("observed_data", nothing),
-	        ("input_file", input_file),
-	        ("input_east", east),
-	        ("input_north", north),
-	        ("input_value", z),
-	        ("datum", datum),
-	        ("projection", projection),
-	        ("outputFile", outfile),
-	        ("cellSize", cellSize),
-	        ("interpDist", interpDist),
-	        ("maxLoop", maxLoop),
-	        ("searchStepSize", searchStepSize),
-	        ("cellSizeF", cellSizeF),
-	        ("trendM", trendM),
-	        ("autoStop", autoStop),
-	        ("angleSearch", angleSearch),
-	        ("multiSmooth", multiSmooth),
-	        ("spatialSmooth", spatialSmooth),
-	        ("outputwritebool", outputwritebool),
-	        ("realGridLocations", realGridLocations)
-	        ])
-	NSinterp(paramd, verbose=verbose)
+    paramd = Dict([
+            ("input_file", input_file),
+            ("input_east", east),
+            ("input_north", north),
+            ("input_value", z),
+            ("datum", datum),
+            ("projection", projection),
+            ("outputFile", outfile),
+            ("cellSize", cellSize),
+            ("interpDist", interpDist),
+            ("maxLoop", maxLoop),
+            ("searchStepSize", searchStepSize),
+            ("cellSizeF", cellSizeF),
+            ("trendM", trendM),
+            ("autoStop", autoStop),
+            ("angleSearch", angleSearch),
+            ("multiSmooth", multiSmooth),
+            ("spatialSmooth", spatialSmooth),
+            ("outputwritebool", outputwritebool),
+            ("realGridLocations", realGridLocations)
+            ])
+     return paramd
 end
 
-"""
-    NSinterp(param_file, verbose=false)
 
- Read parameters from `param_file` into a dictionary, `paramd`, and call `NSinterp(paramd)`
- 
- A more detailed explanation can go here, perhaps a ref to the paper.
- 
- # Arguments
- * `param_file`: The name of the JSON file containing the input parameters.
- * `verbose`: A flag to indicate verbose reporting of progress or not (default).
- 
- # Notes
- The parameter file contains values for the following input parameters:
+function NSinterp(;observed_data, datum, projection, outfile, cellSize, interpDist,
+    maxLoop, searchStepSize, cellSizeF, trendM, autoStop, angleSearch,multiSmooth,
+    spatialSmooth, outputwritebool, realGridLocations, verbose=false
+)
+    input_file = ""
+    east = ""
+    north = ""
+    z = "" 
+    paramd = params_from(input_file, east, north, z, datum, projection, outfile, cellSize,
+        interpDist, maxLoop, searchStepSize, cellSizeF, trendM, autoStop, angleSearch,
+        multiSmooth, spatialSmooth, outputwritebool, realGridLocations, verbose=false
+        )
+    return NSinterp(observed_data, paramd, verbose=verbose)
+end
 
-    observed_data: DimDataset containing the observed data, if `nothing` (the default), get data from input_file
-    input_file: data file containing the observed data, either Geosoft XYZ or NetCDF4 nc format
-    input_east: the name of the channel in `input_file` containing the eastings
-    input_north: the name of the channel in `input_file` containing the northings
-	input_value: the name of the channel in `input_file` containing the values to grid
-    datum: the geographic datum (e.g. WGS84) for the input data
-    projection: the geographic projection for the input data (e.g. "NUTM17")
-    outputFile: the name of the netCDF4 file that the grid will be written to
-	cellSize: edge size of each square cell in metres
-	interpDist: metres away that will be interpolated
-	maxLoop: the number of times the interpolation loop will be processed
-	searchStepSize: how much of a cell we will "travel" each search step
-	cellSizeF: resampled final cell size
-	trendM: 100 - median % location (so 0 is no trending, 100 is full trending)
-	autoStop: a checkbox of whether or not to auto stop
-	angleSearch: the number of degrees it will move each time when searching away from the initial eigenvector
-	multiSmooth: smooth the multiplier grid before applying the normalization process (0 is no smoothing, 100 is max smoothing) (%)
-	spatialSmooth: a checkbox of whether or not to use spatial smoothing (in almost all cases, should be used)
-	outputwritebool: if false, no output file is written; if true, outputs result to NetCDF4 file.
-	realGridLocations: if 0, outputs real data in the equi-distance grid cell locations. If 1, then output the real data cells as an average position of all real data within the cell.
 
- # Examples
- Here are the contents of an example parameter file, `tokens.json`:
+function NSinterp(;input_file, east, north, z, datum, projection, outfile, cellSize,
+    interpDist, maxLoop, searchStepSize, cellSizeF, trendM, autoStop, angleSearch,
+    multiSmooth, spatialSmooth, outputwritebool, realGridLocations, verbose=false
+)
+    paramd = params_from(input_file, east, north, z, datum, projection, outfile, cellSize,
+        interpDist, maxLoop, searchStepSize, cellSizeF, trendM, autoStop, angleSearch,
+        multiSmooth, spatialSmooth, outputwritebool, realGridLocations, verbose=false
+        )
+    return NSinterp(paramd, verbose=verbose)
+end
 
-	{
-		"outputwritebool":true,
-		"maxLoop":10,
-		"input_north":"Northing",
-		"interpDist":1500.0,
-		"searchStepSize":0.25,
-		"cellSizeF":500.0,
-		"input_value":"gD_2P67",
-		"projection":"unknown",
-		"input_east":"Easting",
-		"datum":"unknown",
-		"trendM":50.0,
-		"autoStop":true,
-		"angleSearch":10.0,
-		"multiSmooth":100.0,
-		"spatialSmooth":true,
-		"outputFile":"Blackall_sm100.nc",
-		"realGridLocations":true,
-		"input_file":"mydatadirectory/mydatafile.xyz",
-		"cellSize":500.0
-	}
 
- ```julia
- julia>  NSinterp("tokens.json")
- 
- NSinterp
-  Julia version by Mark Dransfield after Naprstek and Smith
-  Version gamma!
-  Tue, 28 Jan 2025 10:37:51
-  6 threads.
-  Julia Version - 1.8.2
+function NSinterp(observed_data, param_file::String, verbose=false)
+    paramd = params_from(param_file)
+    return NSinterp(observed_data, paramd, verbose=verbose)
+end
 
- Accessing XYZ data in mydatafile.xyz.
 
-  Found 141 header records
-  Found 230 lines
-  Found 43 channels
-
-  Starting anisotropic gridding loop, loop counter:  1 2 3 4 5 6 7 8 9 10
-
- End
- ```
-"""
 function NSinterp(param_file::String, verbose=false)
-	paramd = Dict()
-	try
-		f = open(param_file, "r")
-	    paramd = JSON.parse(f)
-	    close(f)
-  	catch e
-		println("Failed to read JSON: $e")
-		println("    using DEFAULTS")
-		root = "/Users/markdransfield/Documents/GitHub/AirGravQC/examples/SourceData/"
-		root = "/Volumes/MHD Data2024/ActiveSurveys/202403_Xcal_5024_Blackall/Weekly Deliveries/19-04-24/Located/"
-		# input_file = root * "Canobie.xyz"
-		input_file = root * "2205173_Blackall_AGG_Preliminary.xyz"
-		outfile = "Blackall_sm60.nc"
-		east = "Easting"
-		north = "Northing"
-		z = "gD_2P67"
-
-		paramd = Dict([
-		        ("observed_data", nothing),
-		        ("input_file", input_file),
-		        ("input_east", east),
-		        ("input_north", north),
-		        ("input_value", z),
-		        ("datum", "unknown"),
-		        ("projection", "unknown"),
-		        ("outputFile", outfile),
-		        ("cellSize", 500),
-		        ("interpDist", 1200),
-		        ("maxLoop", 20),
-		        ("searchStepSize", 0.25),
-		        ("cellSizeF", 500),
-		        ("trendM", 50),
-		        ("autoStop", true),
-		        ("angleSearch", 10),
-		        ("multiSmooth", 100.0),
-		        ("spatialSmooth", true),
-		        ("outputwritebool", true),
-		        ("realGridLocations", true)
-		        ])
-	end
-	NSinterp(paramd, verbose=verbose)
+    paramd = params_from(param_file)
+    return NSinterp(paramd, verbose=verbose)
 end
 
 
 function NSinterp(paramd::Dict; verbose=false)
 
-	println("NSinterp")
-	println("  Julia version by Mark Dransfield after Naprstek and Smith")
-	println("  Version gamma!")
-	println("  ", Dates.format(now(), "e, dd u yyyy HH:MM:SS"))
-	println("  ", Threads.nthreads(), " threads.")
-	println("  ", "Julia Version - ", VERSION)
-	println()
+    println("NSinterp")
+    println("  Julia version by Mark Dransfield after Naprstek and Smith")
+    println("  Version gamma!")
+    println("  ", Dates.format(now(), "e, dd u yyyy HH:MM:SS"))
+    println("  ", Threads.nthreads(), " threads.")
+    println("  ", "Julia Version - ", VERSION)
+    println()
 
-	# Get the observed data
-	if isnothing(paramd["observed_data"])
-		if occursin(uppercase(split(paramd["input_file"], ".")[end]), "XYZ")
-			obs = obs_from_geoxyz(paramd["input_file"];
-				n_chan=paramd["input_north"], 
-				e_chan=paramd["input_east"], 
-				z_chan=paramd["input_value"], 
-				outsample=1, 
-				verbose=verbose
-				)
-		elseif  occursin(uppercase(split(paramd["input_file"], ".")[end]), "NC")
-			obs = obs_from_geowhizz(paramd["input_file"],
-				n_chan=paramd["input_north"], 
-				e_chan=paramd["input_east"], 
-				z_chan=paramd["input_value"], 
-				verbose=verbose)
-		else
-			println("error - input data file name must end in either XYZ or NC not $(uppercase(split(paramd["input_file"], ".")[end]))")
-			return
-		end
-	else
-		obs = paramd["observed_data"]
-	end
+    # Get the observed data
+    if occursin(uppercase(split(paramd["input_file"], ".")[end]), "XYZ")
+        obs = obs_from_geoxyz(paramd["input_file"];
+            n_chan=paramd["input_north"], 
+            e_chan=paramd["input_east"], 
+            z_chan=paramd["input_value"], 
+            outsample=1, 
+            verbose=verbose
+            )
+    elseif  occursin(uppercase(split(paramd["input_file"], ".")[end]), "NC")
+        obs = obs_from_geowhizz(paramd["input_file"],
+            n_chan=paramd["input_north"], 
+            e_chan=paramd["input_east"], 
+            z_chan=paramd["input_value"], 
+            verbose=verbose)
+    else
+        suffix = uppercase(split(paramd["input_file"], ".")[end])
+        println("error - input data file name must end in either XYZ or NC not $suffix")
+        return
+    end
 
-	data = init_xyz(
-		true, obs[:east].data, obs[:north].data, obs[:down].data,
-		[MapLine(1001., Point(33., 44.), Point(55., 66.))],
-		[
-		Point(minimum(obs[:east].data), minimum(obs[:north].data)),
-		Point(maximum(obs[:east].data), maximum(obs[:north].data))
-		]
-		)
+    return NSinterp(obs, paramd, verbose=verbose)
+end
 
-	gridedData1, posit, Xmin, Xmax, Ymin, Ymax, X, Y, Value = initial_assign(data, paramd)
+
+function NSinterp(obs, paramd::Dict, verbose=false)
+
+    data = init_xyz(
+        true, obs[:east].data, obs[:north].data, obs[:down].data,
+        [MapLine(1001., Point(33., 44.), Point(55., 66.))],
+        [
+        Point(minimum(obs[:east].data), minimum(obs[:north].data)),
+        Point(maximum(obs[:east].data), maximum(obs[:north].data))
+        ]
+        )
+
+    gridedData1, posit, Xmin, Xmax, Ymin, Ymax, X, Y, Value = initial_assign(data, paramd)
     if verbose
-    	println("\n\nFinished Initial Assignment to Grid")
+        println("\n\nFinished Initial Assignment to Grid")
     end
 
     println(summary(gridedData1))
 
-	gridedData2 = initial_average(gridedData1, posit)
+    gridedData2 = initial_average(gridedData1, posit)
     if verbose
-    	println("\n\nFinished Averaging")
-	    println(summary(gridedData2))
+        println("\n\nFinished Averaging")
+        println(summary(gridedData2))
     end
 
-	gridedData3 = initial_interpolation(gridedData2, paramd, Xmin, Ymin, missingdata)
+    gridedData3 = initial_interpolation(gridedData2, paramd, Xmin, Ymin, missingdata)
     if verbose
-    	println("\n\nFinished Initial Interpolating")
-    	println(summary(gridedData3))
-	    saveGrid(gridedData3, paramd, missingdata; out_file="init_interpolation.nc")
+        println("\n\nFinished Initial Interpolating")
+        println(summary(gridedData3))
+        saveGrid(gridedData3, paramd, missingdata; out_file="init_interpolation.nc")
     end
     
-	gridedData4, minVal, maxVal, dcoffset = offset_positive(gridedData3)
+    gridedData4, minVal, maxVal, dcoffset = offset_positive(gridedData3)
     if verbose
-    	println("\n\nFinished Offsetting to Positive")
+        println("\n\nFinished Offsetting to Positive")
     end
 
-	gridedData5 = alpha_mean(gridedData4, paramd)
+    gridedData5 = alpha_mean(gridedData4, paramd)
     if verbose
-    	println("\n\nFinished Alpha-mean Adjustment")
-    	println(summary(gridedData5))
-	    saveGrid(gridedData5, paramd, missingdata; out_file="alpha_mean.nc")
+        println("\n\nFinished Alpha-mean Adjustment")
+        println(summary(gridedData5))
+        saveGrid(gridedData5, paramd, missingdata; out_file="alpha_mean.nc")
     end
 
-	realReplace = anisotropic_grid(gridedData5, paramd, dcoffset, minVal, maxVal)
+    realReplace = anisotropic_grid(gridedData5, paramd, dcoffset, minVal, maxVal)
     if verbose
-    	println("\n\nFinished Anisotropic Gridding")
-    	println(summary(realReplace))
-	    saveGrid(realReplace, paramd, missingdata; out_file="anisotropic_grid.nc")
+        println("\n\nFinished Anisotropic Gridding")
+        println(summary(realReplace))
+        saveGrid(realReplace, paramd, missingdata; out_file="anisotropic_grid.nc")
     end
 
-	finalData = subsample(X, Y, Xmax, Xmin, Ymax, Ymin, paramd, minVal, Value, realReplace, missingdata, dcoffset)
+    finalData = subsample(X, Y, Xmax, Xmin, Ymax, Ymin, paramd, minVal, Value, realReplace, missingdata, dcoffset)
     if verbose
-    	println("\n\nFinished Subsampling")
+        println("\n\nFinished Subsampling")
     end
 
-	if paramd["outputwritebool"]
-	    saveGrid(finalData, paramd, missingdata)
-    	println("\n\nFinished writing output to $(paramd["outputFile"])")
-	end
-	println("\n\nNSinterp ended.")
+    if paramd["outputwritebool"]
+        saveGrid(finalData, paramd, missingdata)
+        println("\n\nFinished writing output to $(paramd["outputFile"])")
+    end
+    println("\n\nNSinterp ended.")
 
-	# return as DimensionalData
-	return cell_to_dim(finalData)
+    # return as DimensionalData
+    return cell_to_dim(finalData)
 end
 
 end
