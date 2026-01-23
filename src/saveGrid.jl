@@ -4,12 +4,11 @@ function saveGrid(celldata::CellData, paramd, missingdata; out_file="")
     end
     ds = NCDataset(out_file, "c")
 
-    for mykey in collect(keys(paramd))
+    for mykey in keys(paramd)
         thekey = convert(String, mykey)
-        println(thekey, " ", typeof(thekey), " ", paramd[thekey])
-        # ds.attrib[thekey] = paramd[thekey]
+        println(thekey, " ", paramd[thekey])
+        ds.attrib[thekey] = paramd[thekey]
     end
-    ds.attrib = paramd
 
     defDim(ds, "easting", celldata.lenX)
     defDim(ds, "northing", celldata.lenY)
