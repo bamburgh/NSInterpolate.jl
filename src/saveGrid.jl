@@ -6,9 +6,10 @@ function saveGrid(celldata::CellData, paramd, missingdata; out_file="")
 
     for mykey in collect(keys(paramd))
         thekey = convert(String, mykey)
-        println(mykey, " ", thekey, " ", paramd[thekey])
-        ds.attrib["NSInterp_params"] = paramd
+        println(thekey, " ", typeof(thekey), " ", paramd[thekey])
+        # ds.attrib[thekey] = paramd[thekey]
     end
+    ds.attrib = paramd
 
     defDim(ds, "easting", celldata.lenX)
     defDim(ds, "northing", celldata.lenY)
