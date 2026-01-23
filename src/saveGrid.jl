@@ -4,12 +4,12 @@ function saveGrid(celldata::CellData, paramd, missingdata; out_file="")
     end
     ds = NCDataset(out_file, "c")
 
-    ds.attrib["geographic_datum"] = "WGS84"
-    ds.attrib["utm_zone"] = "UTM54"
+    # ds.attrib["geographic_datum"] = paramd["datum"]
+    # ds.attrib["utm_zone"] = "UTM54"
 
     for mykey in collect(keys(paramd))
         thekey = convert(String, mykey)
-        ds.attrib[thekey] = "test"#paramd[mykey]
+        ds.attrib[thekey] = paramd[mykey]
     end
 
     defDim(ds, "easting", celldata.lenX)
