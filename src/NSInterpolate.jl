@@ -295,7 +295,7 @@ function params_from(input_file::String, east::String, north::String, z::String,
     datum::String, projection::String, outfile::String, cellSize::Float64,
     interpDist::Float64, maxLoop::Int64, searchStepSize::Float64, cellSizeF::Float64,
     trendM::Float64, autoStop::Bool, angleSearch::Float64, multiSmooth::Float64,
-    spatialSmooth::Bool, outputwritebool::Bool, realGridLocations::Bool, verbose=false
+    spatialSmooth::Bool, outputwritebool::Bool, realGridLocations::Bool
 )
     paramd = Dict([
             ("input_file", input_file),
