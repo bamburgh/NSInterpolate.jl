@@ -333,7 +333,7 @@ function NSinterp(;observed_data, datum::String, projection::String, outfile::St
     z = "" 
     paramd = params_from(input_file, east, north, z, datum, projection, outfile, cellSize,
         interpDist, maxLoop, searchStepSize, cellSizeF, trendM, autoStop, angleSearch,
-        multiSmooth, spatialSmooth, outputwritebool, realGridLocations, verbose=false
+        multiSmooth, spatialSmooth, outputwritebool, realGridLocations
         )
     return NSinterp(observed_data, paramd, verbose=verbose)
 end
@@ -347,7 +347,7 @@ function NSinterp(;input_file::String, east::String, north::String, z::String,
 )
     paramd = params_from(input_file, east, north, z, datum, projection, outfile, cellSize,
         interpDist, maxLoop, searchStepSize, cellSizeF, trendM, autoStop, angleSearch,
-        multiSmooth, spatialSmooth, outputwritebool, realGridLocations, verbose=false
+        multiSmooth, spatialSmooth, outputwritebool, realGridLocations
         )
     return NSinterp(paramd, verbose=verbose)
 end
