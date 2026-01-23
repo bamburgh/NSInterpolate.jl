@@ -9,7 +9,8 @@ function saveGrid(celldata::CellData, paramd, missingdata; out_file="")
 
     for mykey in collect(keys(paramd))
         thekey = convert(String, mykey)
-        ds.attrib[thekey] = paramd[mykey]
+        println(mykey, " ", thekey)
+        ds.attrib[thekey] = paramd[thekey]
     end
 
     defDim(ds, "easting", celldata.lenX)
