@@ -30,29 +30,26 @@ using DimensionalData: @dim, XDim, YDim, TimeDim
 @dim North YDim "northing"
 
 """
-    NSinterp(param_file::String, verbose=false)
+    NSinterp(param_file::String; verbose=false)
 
     NSinterp(paramd::Dict; verbose=false)
 
-    NSinterp(observed_data::DimStack, param_file::String, verbose=false)
+    NSinterp(observed_data::DimStack, param_file::String; verbose=false)
 
-    NSinterp(observed_data::DimStack, paramd::Dict, verbose=false)
+    NSinterp(observed_data::DimStack, paramd::Dict; verbose=false)
 
     NSinterp(;input_file, east, north, z, datum, projection, outfile, cellSize,
         interpDist, maxLoop, searchStepSize, cellSizeF, trendM, autoStop, angleSearch,
         multiSmooth, spatialSmooth, outputwritebool, realGridLocations, verbose=false
     )
 
-    NSinterp(;observed_data::DimStack, datum, projection, outfile, cellSize, interpDist,
+    NSinterp(observed_data::DimStack; datum, projection, outfile, cellSize, interpDist,
         maxLoop, searchStepSize, cellSizeF, trendM, autoStop, angleSearch, multiSmooth,
         spatialSmooth, outputwritebool, realGridLocations, verbose=false
     )
   
  Use control parameters to perform gridding of observed survey data and manage resultant
  grid.
-   
-  
-
   
  # Arguments
  * `paramd`: A dictionary containing the input parameters (see Notes).
@@ -202,7 +199,7 @@ using DimensionalData: @dim, XDim, YDim, TimeDim
         "cellSize":500.0
     }
 
-```julia
+ ```julia
  julia>  NSinterp("tokens.json")
  
  NSinterp
@@ -221,7 +218,7 @@ using DimensionalData: @dim, XDim, YDim, TimeDim
   Starting anisotropic gridding loop, loop counter:  1 2 3 4 5 6 7 8 9 10
 
  End
-```
+ ```
 """
 NSInterp
 
