@@ -291,9 +291,11 @@ function params_from(param_file::String)
 end
 
 
-function params_from(input_file, east, north, z, datum, projection, outfile, cellSize,
-    interpDist, maxLoop, searchStepSize, cellSizeF, trendM, autoStop, angleSearch,
-    multiSmooth, spatialSmooth, outputwritebool, realGridLocations, verbose=false
+function params_from(input_file::String, east::String, north::String, z::String,
+    datum::String, projection::String, outfile::String, cellSize::Float64,
+    interpDist::Float64, maxLoop::Int64, searchStepSize::Float64, cellSizeF::Float64,
+    trendM::Float64, autoStop::Bool, angleSearch::Float64, multiSmooth::Float64,
+    spatialSmooth::Bool, outputwritebool::Bool, realGridLocations::Bool, verbose=false
 )
     paramd = Dict([
             ("input_file", input_file),
@@ -320,9 +322,10 @@ function params_from(input_file, east, north, z, datum, projection, outfile, cel
 end
 
 
-function NSinterp(;observed_data, datum, projection, outfile, cellSize, interpDist,
-    maxLoop, searchStepSize, cellSizeF, trendM, autoStop, angleSearch,multiSmooth,
-    spatialSmooth, outputwritebool, realGridLocations, verbose=false
+function NSinterp(;observed_data, datum::String, projection::String, outfile::String,
+    cellSize::Float64, interpDist::Float64, maxLoop::Int64, searchStepSize::Float64,
+    cellSizeF::Float64, trendM::Float64, autoStop::Bool, angleSearch::Float64, multiSmooth::Float64,
+    spatialSmooth::Bool, outputwritebool::Bool, realGridLocations::Bool, verbose=false
 )
     input_file = ""
     east = ""
@@ -336,9 +339,11 @@ function NSinterp(;observed_data, datum, projection, outfile, cellSize, interpDi
 end
 
 
-function NSinterp(;input_file, east, north, z, datum, projection, outfile, cellSize,
-    interpDist, maxLoop, searchStepSize, cellSizeF, trendM, autoStop, angleSearch,
-    multiSmooth, spatialSmooth, outputwritebool, realGridLocations, verbose=false
+function NSinterp(;input_file::String, east::String, north::String, z::String,
+    datum::String, projection::String, outfile::String, cellSize::Float64,
+    interpDist::Float64, maxLoop::Int64, searchStepSize::Float64, cellSizeF::Float64,
+    trendM::Float64, autoStop::Bool, angleSearch::Float64, multiSmooth::Float64,
+    spatialSmooth::Bool, outputwritebool::Bool, realGridLocations::Bool, verbose=false
 )
     paramd = params_from(input_file, east, north, z, datum, projection, outfile, cellSize,
         interpDist, maxLoop, searchStepSize, cellSizeF, trendM, autoStop, angleSearch,
