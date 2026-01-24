@@ -74,22 +74,22 @@ using DimensionalData: @dim, XDim, YDim, TimeDim
 
  - input_file: String
 
-        path of data file containing the observed data, either Geosoft XYZ or
-        NetCDF4 nc format
+    path of data file containing the observed data, either Geosoft XYZ or
+    NetCDF4 nc format
 
  - input_east: String
 
-        the name of the channel in `input_file` containing the `x` values,
-        usually eastings.
+    the name of the channel in `input_file` containing the `x` values,
+    usually eastings.
         
  - input_north: String
 
-        the name of the channel in `input_file` containing the `y` values,
-        usually northings.
+    the name of the channel in `input_file` containing the `y` values,
+    usually northings.
         
  - input_value: String
 
-        the name of the channel in `input_file` containing the values to grid.
+    the name of the channel in `input_file` containing the values to grid.
         
  - z_units: String ("")
 
@@ -97,144 +97,120 @@ using DimensionalData: @dim, XDim, YDim, TimeDim
         
  - en_units: String ("")
 
-        the units of the `input_east` and `input_north` data for writing to output.
+    the units of the `input_east` and `input_north` data for writing to output.
         
  - datum: String ("unknown")
 
-        the geographic datum (e.g. WGS84) for the input data; not used, simply
-        written to output grid.
+    the geographic datum (e.g. WGS84) for the input data; not used, simply
+    written to output grid.
         
  - projection: String ("unknown")
 
-        the geographic projection for the input data (e.g. "NUTM17"); not used,
-        simply written to output grid.
+    the geographic projection for the input data (e.g. "NUTM17"); not used,
+    simply written to output grid.
         
  - outputwritebool: Boolean (true)
 
-        if `false`, no output file is written; if `true`, writes the output
-        grid to `outputFile`.
+    if `false`, no output file is written; if `true`, writes the output
+    grid to `outputFile`.
         
  - outputFile: String
 
-        the name of the netCDF4 file to which the grid will be written.
+    the name of the netCDF4 file to which the grid will be written.
         
  - cellSize: Float
 
-        edge size of each square cell in metres. This is the size of the grid cells
-        during the interpolation. N&S generally recommend that the interpolation size be
-        0.5 x `cellSizeF`, as this can help smooth out the data. However, this can also
-        lead to weak lineaments not trending all the way between two flight lines, as
-        they now have "further" to trend. N&S recommend experimentation, but in general
-        this value should be half the size, or at most, the same as the output cell size.
+    edge size of each square cell in metres. This is the size of the grid cells
+    during the interpolation. N&S generally recommend that the interpolation size be
+    0.5 x `cellSizeF`, as this can help smooth out the data. However, this can also
+    lead to weak lineaments not trending all the way between two flight lines, as
+    they now have "further" to trend. N&S recommend experimentation, but in general
+    this value should be half the size, or at most, the same as the output cell size.
         
  - interpDist: Float
 
-        metres away that will be interpolated. Essentially, this determines how
-        "far" the method will search for real data when completing the normalisation step.
-        In general N&S recommend setting this to 75-100% of the flight line spacing. However,
-        if a trend is at a highly acute angle to the flight lines, then it would require a
-        much larger interpolation distance.
+    metres away that will be interpolated. Essentially, this determines how
+    "far" the method will search for real data when completing the normalisation step.
+    In general N&S recommend setting this to 75-100% of the flight line spacing. However,
+    if a trend is at a highly acute angle to the flight lines, then it would require a
+    much larger interpolation distance.
         
  - maxLoop: Integer (20)
 
-        the number of times the interpolation loop will be processed or maximum number
-        of iterations. The maximum number of iterations that you wish the interpolation
-        method to go through. This will depend highly on the dataset, but in general
-        somewhere between 50 and 100 is enough, particularly when the automatic stopping
-        criteria is used.
+    the number of times the interpolation loop will be processed or maximum number
+    of iterations. The maximum number of iterations that you wish the interpolation
+    method to go through. This will depend highly on the dataset, but in general
+    somewhere between 50 and 100 is enough, particularly when the automatic stopping
+    criteria is used.
         
  - searchStepSize: Float
 
-        how much of a cell we will "travel" each search step
+    how much of a cell we will "travel" each search step
         
  - cellSizeF: Float
 
-        resampled final cell size. This is the size of the grid cells at the end
-        of the interpolation. This should follow standard interpolation rules, for example
-        for aeromagnetic data set to one-quarter to one-fifth the flight line spacing.
+    resampled final cell size. This is the size of the grid cells at the end
+    of the interpolation. This should follow standard interpolation rules, for example
+    for aeromagnetic data set to one-quarter to one-fifth the flight line spacing.
         
  - trendM: Float (0.0)
 
-        trend factor. Ranges between 0 and 100, affecting how strongly a lineament
-        will be trended (100 is maximum, 0 is minimal trending). In general N&S recommend
-        using 100. Irrelevant because a bug is preventing trending from working.
+    trend factor. Ranges between 0 and 100, affecting how strongly a lineament
+    will be trended (100 is maximum, 0 is minimal trending). In general N&S recommend
+    using 100. Irrelevant because a bug is preventing trending from working.
         
  - autoStop: Boolean (true)
 
-        whether or not to auto stop. Set to `true` if you wish to let
-        the method determine when there is little change occurring between iterations. If
-        set to `false` it will run for `maxLoop` iterations, as determined above.
+    whether or not to auto stop. Set to `true` if you wish to let
+    the method determine when there is little change occurring between iterations. If
+    set to `false` it will run for `maxLoop` iterations, as determined above.
         
  - angleSearch: Float (10.0)
 
-        the number of degrees it will move each time when searching away from
-        the initial eigenvector. When searching for flight line data in the normalization
-        process, it is possible that the interpolation distance (described above) will be
-        reached before a flight line data cell is found. If this occurs, then the search
-        angle (as determined by the trend direction step) will be varied by this "trend
-        angle" amount. In general N&S recommend 5-10 degrees. A lower value will be more
-        accurate, however may dramatically increase the computation time. A higher value
-        will lower the trending accuracy, but be computational quicker.
+    the number of degrees it will move each time when searching away from
+    the initial eigenvector. When searching for flight line data in the normalization
+    process, it is possible that the interpolation distance (described above) will be
+    reached before a flight line data cell is found. If this occurs, then the search
+    angle (as determined by the trend direction step) will be varied by this "trend
+    angle" amount. In general N&S recommend 5-10 degrees. A lower value will be more
+    accurate, however may dramatically increase the computation time. A higher value
+    will lower the trending accuracy, but be computational quicker.
         
  - multiSmooth: Float (0.0)
 
-        percent amount of smoothing of the multiplier grid before applying the
-        normalization process. Ranges between 0(no smoothing) and 100 (maximum smoothing),
-        affecting the uniqueness of the normalization values . In general N&S recommend
-        setting it to 0, and to only increase if high-frequency "noise" is appearing in
-        the interpolation. The subsampling process of the interpolation cell size and
-        output cell size will in general be more effective at reducing any high-frequency
-        "noise", however in certain cases a high smoothing value (>75) will also help.
+    percent amount of smoothing of the multiplier grid before applying the
+    normalization process. Ranges between 0(no smoothing) and 100 (maximum smoothing),
+    affecting the uniqueness of the normalization values . In general N&S recommend
+    setting it to 0, and to only increase if high-frequency "noise" is appearing in
+    the interpolation. The subsampling process of the interpolation cell size and
+    output cell size will in general be more effective at reducing any high-frequency
+    "noise", however in certain cases a high smoothing value (>75) will also help.
         
  - spatialSmooth: Boolean (true)
 
-        whether or not to use spatial smoothing (should usually be `true`). This option
-        should almost always be set `true`, as it controls the first step of the iterative
-        interpolation process. If turned off, the local derivatives are removed from the
-        first step, effectively reducing it to a more simplistic smoothing operator. However,
-        it is left as a variable to the user for two specific cases. First, it should always
-        be turned off if using latitude/longitude coordinates rather than Northings/Eastings,
-        or in any other case where the cell size is set to be less than 1. Second, it can
-        be turned off as an additional control to reduce the linear structure within the
-        data. In most datasets there will be very little difference between having the
-        option on or off, however, if left off, some of the areas with minimal linear
-        structure should result in even less linear structure.
+    whether or not to use spatial smoothing (should usually be `true`). This option
+    should almost always be set `true`, as it controls the first step of the iterative
+    interpolation process. If turned off, the local derivatives are removed from the
+    first step, effectively reducing it to a more simplistic smoothing operator. However,
+    it is left as a variable to the user for two specific cases. First, it should always
+    be turned off if using latitude/longitude coordinates rather than Northings/Eastings,
+    or in any other case where the cell size is set to be less than 1. Second, it can
+    be turned off as an additional control to reduce the linear structure within the
+    data. In most datasets there will be very little difference between having the
+    option on or off, however, if left off, some of the areas with minimal linear
+    structure should result in even less linear structure.
         
  - realGridLocations: Boolean (true)
 
-        if `false`, outputs real data in the equi-distance grid cell
-        locations. If `true`, then output the real data cells as an average position of
-        all real data within the cell. **probably has no effect!!!**
+    if `false`, outputs real data in the equi-distance grid cell
+    locations. If `true`, then output the real data cells as an average position of
+    all real data within the cell. **probably has no effect!!!**
 
  # Examples
- Here are the contents of an example parameter file, `tokens.json`:
-
-    {
-        "input_file":"mydatadirectory/mydatafile.xyz",
-        "input_east":"Easting",
-        "input_north":"Northing",
-        "input_value":"gD_2P67",
-        "z_units":"um/s/s",
-        "en_units":"m",
-        "datum":"unknown",
-        "projection":"unknown",
-        "outputwritebool":true,
-        "outputFile":"Blackall_sm100.nc",
-        "cellSize":500.0,
-        "interpDist":1500.0,
-        "maxLoop":10,
-        "searchStepSize":0.25,
-        "cellSizeF":500.0,
-        "trendM":50.0,
-        "autoStop":true,
-        "angleSearch":10.0,
-        "multiSmooth":100.0,
-        "spatialSmooth":true,
-        "realGridLocations":true,
-    }
+ Here we create a parameter dictionary, then use it to run NSInterp:
 
  ```julia-repl
- julia>     paramd = Dict([
+ julia> paramd = Dict([
             ("input_file", input_file),
             ("input_east", east),
             ("input_north", north),
@@ -262,9 +238,9 @@ using DimensionalData: @dim, XDim, YDim, TimeDim
  NSinterp
   Julia version by Mark Dransfield after Naprstek and Smith
   Version gamma!
-  Tue, 28 Jan 2025 10:37:51
+  Tue, 24 Jan 2026 10:37:51
   6 threads.
-  Julia Version - 1.8.2
+  Julia Version - 1.12.3
 
  Accessing XYZ data in mydatafile.xyz.
 
