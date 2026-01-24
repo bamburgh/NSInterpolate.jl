@@ -8,7 +8,9 @@ function saveGrid(celldata::CellData, paramd, missingdata; out_file="")
         thekey = convert(String, mykey)
         println("Attribute ", thekey, " = ", paramd[thekey], " (", typeof(paramd[thekey]), ")")
         # println(thekey, " ", paramd[thekey])
-        ds.attrib[thekey] = paramd[thekey]
+        if typeof(paramd[thekey]) in (String , AbstractFloat, Int64)
+            ds.attrib[thekey] = paramd[thekey]
+        end
     end
 
     defDim(ds, "easting", celldata.lenX)
