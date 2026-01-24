@@ -4,12 +4,16 @@ function saveGrid(celldata::CellData, paramd, missingdata; out_file="")
     end
     ds = NCDataset(out_file, "c")
 
+    value_units = ""
     for mykey in keys(paramd)
         thekey = convert(String, mykey)
         # println("Attribute ", thekey, " = ", paramd[thekey], " (", typeof(paramd[thekey]), ")")
         # println(thekey, " ", paramd[thekey])
         if typeof(paramd[thekey]) in (String , Float64, Int64)
             ds.attrib[thekey] = paramd[thekey]
+        end
+        if "units" == lowercase(mykey)
+            value_units = paramd[mykey]
         end
     end
 
@@ -25,11 +29,7 @@ function saveGrid(celldata::CellData, paramd, missingdata; out_file="")
     ncY[:] = celldata.Y[1,:]
 
     ncValues = defVar(ds, "Values", Float64, ("easting", "northing"), fillvalue = missingdata)
-    if "units" in lowercase(keys(paramd))
-        ncValues.attrib["units"] = paramd["units"]
-    else
-        ncValues.attrib["units"] = ""
-    end
+    ncValues.attrib["units"] = value_units
     ncValues.attrib["field"] = paramd["input_value"]
 
     myvals = zeros(Float64, celldata.lenX, celldata.lenY)
