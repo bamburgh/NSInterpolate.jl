@@ -6,9 +6,9 @@ function saveGrid(celldata::CellData, paramd, missingdata; out_file="")
 
     for mykey in keys(paramd)
         thekey = convert(String, mykey)
-        println("Attribute ", thekey, " = ", paramd[thekey], " (", typeof(paramd[thekey]), ")")
+        # println("Attribute ", thekey, " = ", paramd[thekey], " (", typeof(paramd[thekey]), ")")
         # println(thekey, " ", paramd[thekey])
-        if typeof(paramd[thekey]) in (String , AbstractFloat, Int64)
+        if typeof(paramd[thekey]) in (String , Float64, Int64)
             ds.attrib[thekey] = paramd[thekey]
         end
     end
@@ -25,8 +25,12 @@ function saveGrid(celldata::CellData, paramd, missingdata; out_file="")
     ncY[:] = celldata.Y[1,:]
 
     ncValues = defVar(ds, "Values", Float64, ("easting", "northing"), fillvalue = missingdata)
-    ncValues.attrib["units"] = "um/s/s"
-    ncValues.attrib["field"] = "bouguer gravity (2.67)"
+    if "units" in lowercase(keys(paramd))
+        ncValues.attrib["units"] = paramd["units"]
+    else
+        ncValues.attrib["units"] = ""
+    end
+    ncValues.attrib["field"] = paramd["input_value"]
 
     myvals = zeros(Float64, celldata.lenX, celldata.lenY)
     for i in 1:celldata.lenX
