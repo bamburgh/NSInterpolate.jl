@@ -38,14 +38,19 @@ using DimensionalData: @dim, XDim, YDim, TimeDim
 
     NSinterp(observed_data::DimStack, paramd::Dict; verbose=false)
 
-    NSinterp(;input_file, east, north, z, datum, projection, outfile, cellSize,
-        interpDist, maxLoop, searchStepSize, cellSizeF, trendM, autoStop, angleSearch,
-        multiSmooth, spatialSmooth, outputwritebool, realGridLocations, verbose=false
+    NSinterp(;input_file::String, east::String, north::String, z::String,
+        z_units::String, en_units::String, datum::String, projection::String,
+        outputwritebool::Bool, outfile::String, cellSize::Float64, interpDist::Float64,
+        maxLoop::Int64, searchStepSize::Float64, cellSizeF::Float64, trendM::Float64,
+        autoStop::Bool, angleSearch::Float64, multiSmooth::Float64, spatialSmooth::Bool,
+        realGridLocations::Bool, verbose=false
     )
 
-    NSinterp(observed_data::DimStack; datum, projection, outfile, cellSize, interpDist,
-        maxLoop, searchStepSize, cellSizeF, trendM, autoStop, angleSearch, multiSmooth,
-        spatialSmooth, outputwritebool, realGridLocations, verbose=false
+    NSinterp(observed_data::DimensionalData.DimStack; datum::String,
+        projection::String, outfile::String, cellSize::Float64, interpDist::Float64,
+        maxLoop::Int64, searchStepSize::Float64, cellSizeF::Float64, trendM::Float64,
+        autoStop::Bool, angleSearch::Float64, multiSmooth::Float64, spatialSmooth::Bool,
+        outputwritebool::Bool, realGridLocations::Bool, verbose=false
     )
   
  Use control parameters to perform gridding of observed survey data and manage resultant
@@ -86,6 +91,14 @@ using DimensionalData: @dim, XDim, YDim, TimeDim
 
         the name of the channel in `input_file` containing the values to grid.
         
+ - z_units: String ("")
+
+    the units of the `input_value` data; not used, simply written to output.
+        
+ - en_units: String ("")
+
+        the units of the `input_east` and `input_north` data for writing to output.
+        
  - datum: String ("unknown")
 
         the geographic datum (e.g. WGS84) for the input data; not used, simply
@@ -95,6 +108,11 @@ using DimensionalData: @dim, XDim, YDim, TimeDim
 
         the geographic projection for the input data (e.g. "NUTM17"); not used,
         simply written to output grid.
+        
+ - outputwritebool: Boolean (true)
+
+        if `false`, no output file is written; if `true`, writes the output
+        grid to `outputFile`.
         
  - outputFile: String
 
@@ -182,11 +200,6 @@ using DimensionalData: @dim, XDim, YDim, TimeDim
         option on or off, however, if left off, some of the areas with minimal linear
         structure should result in even less linear structure.
         
- - outputwritebool: Boolean (true)
-
-        if `false`, no output file is written; if `true`, writes the output
-        grid to `outputFile`.
-        
  - realGridLocations: Boolean (true)
 
         if `false`, outputs real data in the equi-distance grid cell
@@ -197,35 +210,40 @@ using DimensionalData: @dim, XDim, YDim, TimeDim
  Here are the contents of an example parameter file, `tokens.json`:
 
     {
-        "outputwritebool":true,
-        "maxLoop":10,
+        "input_file":"mydatadirectory/mydatafile.xyz",
+        "input_east":"Easting",
         "input_north":"Northing",
+        "input_value":"gD_2P67",
+        "z_units":"um/s/s",
+        "en_units":"m",
+        "datum":"unknown",
+        "projection":"unknown",
+        "outputwritebool":true,
+        "outputFile":"Blackall_sm100.nc",
+        "cellSize":500.0,
         "interpDist":1500.0,
+        "maxLoop":10,
         "searchStepSize":0.25,
         "cellSizeF":500.0,
-        "input_value":"gD_2P67",
-        "projection":"unknown",
-        "input_east":"Easting",
-        "datum":"unknown",
         "trendM":50.0,
         "autoStop":true,
         "angleSearch":10.0,
         "multiSmooth":100.0,
         "spatialSmooth":true,
-        "outputFile":"Blackall_sm100.nc",
         "realGridLocations":true,
-        "input_file":"mydatadirectory/mydatafile.xyz",
-        "cellSize":500.0
     }
 
  ```julia-repl
- julia> paramd = Dict([
+ julia>     paramd = Dict([
             ("input_file", input_file),
             ("input_east", east),
             ("input_north", north),
             ("input_value", z),
+            ("z_units", z_units),
+            ("en_units", en_units),
             ("datum", datum),
             ("projection", projection),
+            ("outputwritebool", outputwritebool),
             ("outputFile", outfile),
             ("cellSize", cellSize),
             ("interpDist", interpDist),
@@ -237,7 +255,6 @@ using DimensionalData: @dim, XDim, YDim, TimeDim
             ("angleSearch", angleSearch),
             ("multiSmooth", multiSmooth),
             ("spatialSmooth", spatialSmooth),
-            ("outputwritebool", outputwritebool),
             ("realGridLocations", realGridLocations)
             ])
  julia>  NSinterp(paramd)
@@ -301,14 +318,19 @@ function params_from(param_file::String)
         east = "Easting"
         north = "Northing"
         z = "gD_2P67"
+        z_units = "um/s/s"
+        en_units = "m"
 
         paramd = Dict([
                 ("input_file", input_file),
                 ("input_east", east),
                 ("input_north", north),
                 ("input_value", z),
+                ("z_units", z_units),
+                ("en_units", en_units),
                 ("datum", "unknown"),
                 ("projection", "unknown"),
+                ("outputwritebool", true),
                 ("outputFile", outfile),
                 ("cellSize", 500),
                 ("interpDist", 1200),
@@ -320,7 +342,6 @@ function params_from(param_file::String)
                 ("angleSearch", 10.0),
                 ("multiSmooth", 0.0),
                 ("spatialSmooth", true),
-                ("outputwritebool", true),
                 ("realGridLocations", true)
                 ])
     end
@@ -329,18 +350,22 @@ end
 
 
 function params_from(input_file::String, east::String, north::String, z::String,
-    datum::String, projection::String, outfile::String, cellSize::Float64,
-    interpDist::Float64, maxLoop::Int64, searchStepSize::Float64, cellSizeF::Float64,
-    trendM::Float64, autoStop::Bool, angleSearch::Float64, multiSmooth::Float64,
-    spatialSmooth::Bool, outputwritebool::Bool, realGridLocations::Bool
+    z_units::String, en_units::String, datum::String, projection::String,
+    outputwritebool::Bool, outfile::String, cellSize::Float64, interpDist::Float64,
+    maxLoop::Int64, searchStepSize::Float64, cellSizeF::Float64, trendM::Float64,
+    autoStop::Bool, angleSearch::Float64, multiSmooth::Float64, spatialSmooth::Bool,
+    realGridLocations::Bool
 )
     paramd = Dict([
             ("input_file", input_file),
             ("input_east", east),
             ("input_north", north),
             ("input_value", z),
+            ("z_units", z_units),
+            ("en_units", en_units),
             ("datum", datum),
             ("projection", projection),
+            ("outputwritebool", outputwritebool),
             ("outputFile", outfile),
             ("cellSize", cellSize),
             ("interpDist", interpDist),
@@ -352,48 +377,24 @@ function params_from(input_file::String, east::String, north::String, z::String,
             ("angleSearch", angleSearch),
             ("multiSmooth", multiSmooth),
             ("spatialSmooth", spatialSmooth),
-            ("outputwritebool", outputwritebool),
             ("realGridLocations", realGridLocations)
             ])
      return paramd
 end
 
 
-function NSinterp(observed_data::DimensionalData.DimStack; datum::String,
-    projection::String, outfile::String, cellSize::Float64, interpDist::Float64,
+function NSinterp(;input_file::String, east::String, north::String, z::String,
+    z_units::String, en_units::String, datum::String, projection::String,
+    outputwritebool::Bool, outfile::String, cellSize::Float64, interpDist::Float64,
     maxLoop::Int64, searchStepSize::Float64, cellSizeF::Float64, trendM::Float64,
     autoStop::Bool, angleSearch::Float64, multiSmooth::Float64, spatialSmooth::Bool,
-    outputwritebool::Bool, realGridLocations::Bool, verbose=false
+    realGridLocations::Bool, verbose=false
 )
-    input_file = ""
-    east = ""
-    north = ""
-    z = "" 
-    paramd = params_from(input_file, east, north, z, datum, projection, outfile, cellSize,
-        interpDist, maxLoop, searchStepSize, cellSizeF, trendM, autoStop, angleSearch,
-        multiSmooth, spatialSmooth, outputwritebool, realGridLocations
-        )
-    return NSinterp(observed_data, paramd, verbose=verbose)
-end
-
-
-function NSinterp(;input_file::String, east::String, north::String, z::String,
-    datum::String, projection::String, outfile::String, cellSize::Float64,
-    interpDist::Float64, maxLoop::Int64, searchStepSize::Float64, cellSizeF::Float64,
-    trendM::Float64, autoStop::Bool, angleSearch::Float64, multiSmooth::Float64,
-    spatialSmooth::Bool, outputwritebool::Bool, realGridLocations::Bool, verbose=false
-)
-    paramd = params_from(input_file, east, north, z, datum, projection, outfile, cellSize,
-        interpDist, maxLoop, searchStepSize, cellSizeF, trendM, autoStop, angleSearch,
-        multiSmooth, spatialSmooth, outputwritebool, realGridLocations
+    paramd = params_from(input_file, east, north, z, z_units, en_units, datum, projection,
+        outputwritebool, outfile, cellSize, interpDist, maxLoop, searchStepSize, cellSizeF,
+        trendM, autoStop, angleSearch, multiSmooth, spatialSmooth, realGridLocations
         )
     return NSinterp(paramd, verbose=verbose)
-end
-
-
-function NSinterp(observed_data::DimensionalData.DimStack, param_file::String; verbose=false)
-    paramd = params_from(param_file)
-    return NSinterp(observed_data, paramd, verbose=verbose)
 end
 
 
@@ -500,7 +501,7 @@ function NSinterp(obs::DimensionalData.DimStack, paramd::Dict; verbose=false)
     println("\n\nNSinterp ended.")
 
     # return as DimensionalData
-    return cell_to_dim(finalData, datum=paramd["datum"], projection=paramd["projection"])
+    return cell_to_dim(finalData, units=paramd["z_units"], datum=paramd["datum"], projection=paramd["projection"])
 end
 
 end
