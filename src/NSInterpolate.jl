@@ -501,7 +501,13 @@ function NSinterp(obs::DimensionalData.DimStack, paramd::Dict; verbose=false)
     println("\n\nNSinterp ended.")
 
     # return as DimensionalData
-    return cell_to_dim(finalData, units=paramd["z_units"], datum=paramd["datum"], projection=paramd["projection"])
+    return cell_to_dim(
+        finalData,
+        name=paramd["input_value"]
+        units=paramd["z_units"], 
+        datum=paramd["datum"], 
+        projection=paramd["projection"]
+        )
 end
 
 end
