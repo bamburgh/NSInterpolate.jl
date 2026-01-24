@@ -6,7 +6,7 @@ function saveGrid(celldata::CellData, paramd, missingdata; out_file="")
 
     for mykey in keys(paramd)
         thekey = convert(String, mykey)
-        println("Attribute ", thekey, " = ", mydict[thekey], " (", typeof(mydict[thekey]), ")")
+        println("Attribute ", thekey, " = ", paramd[thekey], " (", typeof(paramd[thekey]), ")")
         # println(thekey, " ", paramd[thekey])
         ds.attrib[thekey] = paramd[thekey]
     end
