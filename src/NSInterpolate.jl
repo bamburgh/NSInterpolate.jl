@@ -210,6 +210,7 @@ using DimensionalData: @dim, XDim, YDim, TimeDim
  Here we create a parameter dictionary, then use it to run NSInterp:
 
 ```julia-repl
+
  julia> paramd = Dict([
             ("input_file", input_file),
             ("input_east", east),
