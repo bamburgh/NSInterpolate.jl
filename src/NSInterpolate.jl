@@ -417,8 +417,8 @@ function NSinterp(paramd::Dict; verbose=false)
         return
     end
     if paramd["difference_z"]
-        obs_diff = diff(obs[:down].data[:]
-        obs[:down].data[:] = vcat(obs_diff[1], obs_diff))
+        obs_diff = diff(obs[:down].data[:])
+        obs[:down].data[:] = vcat(obs_diff[1], obs_diff)
     end
 
     return NSinterp(obs, paramd, verbose=verbose)
