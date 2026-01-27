@@ -39,7 +39,7 @@ using DimensionalData: @dim, XDim, YDim, TimeDim
     NSinterp(observed_data::DimStack, paramd::Dict; verbose=false)
 
     NSinterp(;input_file::String, east::String, north::String, z::String,
-        z_units::String, en_units::String, datum::String, projection::String,
+        z_units::String, en_units::String, diff_z::Bool, datum::String, projection::String,
         outputwritebool::Bool, outfile::String, cellSize::Float64, interpDist::Float64,
         maxLoop::Int64, searchStepSize::Float64, cellSizeF::Float64, trendM::Float64,
         autoStop::Bool, angleSearch::Float64, multiSmooth::Float64, spatialSmooth::Bool,
@@ -98,7 +98,12 @@ using DimensionalData: @dim, XDim, YDim, TimeDim
  - en_units: String ("")
 
     the units of the `input_east` and `input_north` data for writing to output.
-        
+
+ - diff_z: Bool (false)
+
+    if true, then the `input_value` data are differenced along flight-line before
+    gridding.
+
  - datum: String ("unknown")
 
     the geographic datum (e.g. WGS84) for the input data; not used, simply
