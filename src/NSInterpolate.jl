@@ -218,6 +218,7 @@ using DimensionalData: @dim, XDim, YDim, TimeDim
             ("input_value", z),
             ("z_units", z_units),
             ("en_units", en_units),
+            ("difference_z", diff_z),
             ("datum", datum),
             ("projection", projection),
             ("outputwritebool", outputwritebool),
@@ -298,6 +299,7 @@ function params_from(param_file::String)
         z = "gD_2P67"
         z_units = "um/s/s"
         en_units = "m"
+        diff_z = false
 
         paramd = Dict([
                 ("input_file", input_file),
@@ -306,6 +308,7 @@ function params_from(param_file::String)
                 ("input_value", z),
                 ("z_units", z_units),
                 ("en_units", en_units),
+                ("difference_z", diff_z),
                 ("datum", "unknown"),
                 ("projection", "unknown"),
                 ("outputwritebool", true),
@@ -328,7 +331,7 @@ end
 
 
 function params_from(input_file::String, east::String, north::String, z::String,
-    z_units::String, en_units::String, datum::String, projection::String,
+    z_units::String, en_units::String, diff_z::Bool, datum::String, projection::String,
     outputwritebool::Bool, outfile::String, cellSize::Float64, interpDist::Float64,
     maxLoop::Int64, searchStepSize::Float64, cellSizeF::Float64, trendM::Float64,
     autoStop::Bool, angleSearch::Float64, multiSmooth::Float64, spatialSmooth::Bool,
@@ -341,6 +344,7 @@ function params_from(input_file::String, east::String, north::String, z::String,
             ("input_value", z),
             ("z_units", z_units),
             ("en_units", en_units),
+            ("difference_z", diff_z),
             ("datum", datum),
             ("projection", projection),
             ("outputwritebool", outputwritebool),
@@ -362,15 +366,15 @@ end
 
 
 function NSinterp(;input_file::String, east::String, north::String, z::String,
-    z_units::String, en_units::String, datum::String, projection::String,
+    z_units::String, en_units::String, diff_z::Bool, datum::String, projection::String,
     outputwritebool::Bool, outfile::String, cellSize::Float64, interpDist::Float64,
     maxLoop::Int64, searchStepSize::Float64, cellSizeF::Float64, trendM::Float64,
     autoStop::Bool, angleSearch::Float64, multiSmooth::Float64, spatialSmooth::Bool,
     realGridLocations::Bool, verbose=false
 )
-    paramd = params_from(input_file, east, north, z, z_units, en_units, datum, projection,
-        outputwritebool, outfile, cellSize, interpDist, maxLoop, searchStepSize, cellSizeF,
-        trendM, autoStop, angleSearch, multiSmooth, spatialSmooth, realGridLocations
+    paramd = params_from(input_file, east, north, z, z_units, en_units, diff_z, datum,
+        projection, outputwritebool, outfile, cellSize, interpDist, maxLoop, searchStepSize,
+        cellSizeF, trendM, autoStop, angleSearch, multiSmooth, spatialSmooth, realGridLocations
         )
     return NSinterp(paramd, verbose=verbose)
 end
@@ -411,6 +415,10 @@ function NSinterp(paramd::Dict; verbose=false)
         suffix = uppercase(split(paramd["input_file"], ".")[end])
         println("error - input data file name must end in either XYZ or NC not $suffix")
         return
+    end
+    if paramd["difference_z"]
+        obs_diff = diff(obs[:down].data[:]
+        obs[:down].data[:] = vcat(obs_diff[1], obs_diff))
     end
 
     return NSinterp(obs, paramd, verbose=verbose)
