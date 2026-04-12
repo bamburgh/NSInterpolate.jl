@@ -214,7 +214,7 @@ using DimensionalData: @dim, XDim, YDim, TimeDim
  # Examples
  Here we create a parameter dictionary, then use it to run NSInterp:
 
-```julia-repl
+ ```julia-repl
 
  julia> paramd = Dict([
             ("input_file", input_file),
@@ -258,7 +258,7 @@ using DimensionalData: @dim, XDim, YDim, TimeDim
   Starting anisotropic gridding loop, loop counter:  1 2 3 4 5 6 7 8 9 10
 
  End
-```
+ ```
 
 """
 NSInterp
