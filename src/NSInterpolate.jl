@@ -52,7 +52,7 @@ using DimensionalData: @dim, XDim, YDim, TimeDim
         autoStop::Bool, angleSearch::Float64, multiSmooth::Float64, spatialSmooth::Bool,
         outputwritebool::Bool, realGridLocations::Bool, verbose=false
     )
-  
+
  Use control parameters to perform gridding of observed survey data and manage resultant
  grid.
   
@@ -261,7 +261,7 @@ using DimensionalData: @dim, XDim, YDim, TimeDim
  ```
 
 """
-NSInterp
+# NSInterp
 
 missingdata = 1.0E10
 
@@ -370,6 +370,165 @@ function params_from(input_file::String, east::String, north::String, z::String,
 end
 
 
+"""
+    NSinterp(;input_file::String, east::String, north::String, z::String,
+        z_units::String, en_units::String, diff_z::Bool, datum::String, projection::String,
+        outputwritebool::Bool, outfile::String, cellSize::Float64, interpDist::Float64,
+        maxLoop::Int64, searchStepSize::Float64, cellSizeF::Float64, trendM::Float64,
+        autoStop::Bool, angleSearch::Float64, multiSmooth::Float64, spatialSmooth::Bool,
+        realGridLocations::Bool, verbose=false
+    )
+
+ Use control parameters to perform gridding of observed survey data and manage resultant
+ grid.
+  
+ # Arguments
+ * various (see Notes).
+ * `verbose`: A flag to indicate verbose reporting of progress or not (default).
+
+ # Notes
+ The parameter file contains values for the following input parameters:
+
+ - input_file: String
+
+    path of data file containing the observed data, either Geosoft XYZ or
+    NetCDF4 nc format
+
+ - input_east: String
+
+    the name of the channel in `input_file` containing the `x` values,
+    usually eastings.
+        
+ - input_north: String
+
+    the name of the channel in `input_file` containing the `y` values,
+    usually northings.
+        
+ - input_value: String
+
+    the name of the channel in `input_file` containing the values to grid.
+        
+ - z_units: String ("")
+
+    the units of the `input_value` data; not used, simply written to output.
+        
+ - en_units: String ("")
+
+    the units of the `input_east` and `input_north` data for writing to output.
+
+ - diff_z: Bool (false)
+
+    if true, then the `input_value` data are differenced along flight-line before
+    gridding.
+
+ - datum: String ("unknown")
+
+    the geographic datum (e.g. WGS84) for the input data; not used, simply
+    written to output grid.
+        
+ - projection: String ("unknown")
+
+    the geographic projection for the input data (e.g. "NUTM17"); not used,
+    simply written to output grid.
+        
+ - outputwritebool: Boolean (true)
+
+    if `false`, no output file is written; if `true`, writes the output
+    grid to `outputFile`.
+        
+ - outputFile: String
+
+    the name of the netCDF4 file to which the grid will be written.
+        
+ - cellSize: Float
+
+    edge size of each square cell in metres. This is the size of the grid cells
+    during the interpolation. N&S generally recommend that the interpolation size be
+    0.5 x `cellSizeF`, as this can help smooth out the data. However, this can also
+    lead to weak lineaments not trending all the way between two flight lines, as
+    they now have "further" to trend. N&S recommend experimentation, but in general
+    this value should be half the size, or at most, the same as the output cell size.
+        
+ - interpDist: Float
+
+    metres away that will be interpolated. Essentially, this determines how
+    "far" the method will search for real data when completing the normalisation step.
+    In general N&S recommend setting this to 75-100% of the flight line spacing. However,
+    if a trend is at a highly acute angle to the flight lines, then it would require a
+    much larger interpolation distance.
+        
+ - maxLoop: Integer (20)
+
+    the number of times the interpolation loop will be processed or maximum number
+    of iterations. The maximum number of iterations that you wish the interpolation
+    method to go through. This will depend highly on the dataset, but in general
+    somewhere between 50 and 100 is enough, particularly when the automatic stopping
+    criteria is used.
+        
+ - searchStepSize: Float
+
+    how much of a cell we will "travel" each search step
+        
+ - cellSizeF: Float
+
+    resampled final cell size. This is the size of the grid cells at the end
+    of the interpolation. This should follow standard interpolation rules, for example
+    for aeromagnetic data set to one-quarter to one-fifth the flight line spacing.
+        
+ - trendM: Float (0.0)
+
+    trend factor. Ranges between 0 and 100, affecting how strongly a lineament
+    will be trended (100 is maximum, 0 is minimal trending). In general N&S recommend
+    using 100. Irrelevant because a bug is preventing trending from working.
+        
+ - autoStop: Boolean (true)
+
+    whether or not to auto stop. Set to `true` if you wish to let
+    the method determine when there is little change occurring between iterations. If
+    set to `false` it will run for `maxLoop` iterations, as determined above.
+        
+ - angleSearch: Float (10.0)
+
+    the number of degrees it will move each time when searching away from
+    the initial eigenvector. When searching for flight line data in the normalization
+    process, it is possible that the interpolation distance (described above) will be
+    reached before a flight line data cell is found. If this occurs, then the search
+    angle (as determined by the trend direction step) will be varied by this "trend
+    angle" amount. In general N&S recommend 5-10 degrees. A lower value will be more
+    accurate, however may dramatically increase the computation time. A higher value
+    will lower the trending accuracy, but be computational quicker.
+        
+ - multiSmooth: Float (0.0)
+
+    percent amount of smoothing of the multiplier grid before applying the
+    normalization process. Ranges between 0(no smoothing) and 100 (maximum smoothing),
+    affecting the uniqueness of the normalization values . In general N&S recommend
+    setting it to 0, and to only increase if high-frequency "noise" is appearing in
+    the interpolation. The subsampling process of the interpolation cell size and
+    output cell size will in general be more effective at reducing any high-frequency
+    "noise", however in certain cases a high smoothing value (>75) will also help.
+        
+ - spatialSmooth: Boolean (true)
+
+    whether or not to use spatial smoothing (should usually be `true`). This option
+    should almost always be set `true`, as it controls the first step of the iterative
+    interpolation process. If turned off, the local derivatives are removed from the
+    first step, effectively reducing it to a more simplistic smoothing operator. However,
+    it is left as a variable to the user for two specific cases. First, it should always
+    be turned off if using latitude/longitude coordinates rather than Northings/Eastings,
+    or in any other case where the cell size is set to be less than 1. Second, it can
+    be turned off as an additional control to reduce the linear structure within the
+    data. In most datasets there will be very little difference between having the
+    option on or off, however, if left off, some of the areas with minimal linear
+    structure should result in even less linear structure.
+        
+ - realGridLocations: Boolean (true)
+
+    if `false`, outputs real data in the equi-distance grid cell
+    locations. If `true`, then output the real data cells as an average position of
+    all real data within the cell. **probably has no effect!!!**
+
+"""
 function NSinterp(;input_file::String, east::String, north::String, z::String,
     z_units::String, en_units::String, diff_z::Bool, datum::String, projection::String,
     outputwritebool::Bool, outfile::String, cellSize::Float64, interpDist::Float64,
@@ -385,12 +544,34 @@ function NSinterp(;input_file::String, east::String, north::String, z::String,
 end
 
 
+"""
+    NSinterp(param_file::String; verbose=false)
+
+ Use control parameters to perform gridding of observed survey data and manage resultant
+ grid.
+  
+ # Arguments
+ * `param_file`: The name of the JSON file containing the input parameters.
+ * `verbose`: A flag to indicate verbose reporting of progress or not (default).
+
+"""
 function NSinterp(param_file::String; verbose=false)
     paramd = params_from(param_file)
     return NSinterp(paramd, verbose=verbose)
 end
 
 
+"""
+    NSinterp(paramd::Dict; verbose=false)
+
+ Use control parameters to perform gridding of observed survey data and manage resultant
+ grid.
+  
+ # Arguments
+ * `paramd`: A dictionary containing the input parameters (see Notes).
+ * `verbose`: A flag to indicate verbose reporting of progress or not (default).
+
+"""
 function NSinterp(paramd::Dict; verbose=false)
 
     println("NSinterp")
@@ -430,6 +611,18 @@ function NSinterp(paramd::Dict; verbose=false)
 end
 
 
+"""
+    NSinterp(obs::DimStack, paramd::Dict; verbose=false)
+
+ Use control parameters to perform gridding of observed survey data and manage resultant
+ grid.
+  
+ # Arguments
+ * `obs`: A DimStack of geographically located observed data.
+ * `paramd`: A dictionary containing the input parameters (see Notes).
+ * `verbose`: A flag to indicate verbose reporting of progress or not (default).
+
+"""
 function NSinterp(obs::DimensionalData.DimStack, paramd::Dict; verbose=false)
 
     data = init_xyz(
